@@ -1,0 +1,140 @@
+:root {
+    --azul-principal: #4A90E2; /* Azul similar al del botón e icono en la imagen */
+    --gris-fondo-pagina: #f0f2f5; /* Gris claro para el fondo donde se asienta el formulario */
+    --gris-texto-principal: #333333;
+    --gris-texto-secundario: #555555;
+    --gris-borde-input: #ced4da;
+    --blanco: #FFFFFF;
+    --sombra-tarjeta: 0 5px 15px rgba(0, 0, 0, 0.1);
+    --fuente-principal: 'Kumbh Sans', sans-serif;
+}
+
+body {
+    margin: 0;
+    font-family: var(--fuente-principal);
+    background-color: var(--gris-fondo-pagina); /* Fondo general de la página */
+    display: flex;
+    justify-content: center; /* Centra el contenido principal horizontalmente */
+    align-items: center; /* Centra el contenido principal verticalmente */
+    min-height: 100vh;
+    color: var(--gris-texto-principal);
+    padding: 20px; /* Espacio por si el formulario es muy grande en pantallas pequeñas */
+    box-sizing: border-box;
+}
+
+.login-page-container {
+    display: flex; /* Si se decide añadir la barra lateral */
+    width: 100%;
+    justify-content: center; /* Centra login-main-content si no hay sidebar */
+}
+
+.login-main-content {
+    flex-grow: 1; /* Si hay sidebar, ocupa el resto */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.login-form-container {
+    background-color: var(--blanco);
+    padding: 40px 45px; /* Padding interno del formulario */
+    border-radius: 8px; /* Bordes redondeados como en la imagen */
+    box-shadow: var(--sombra-tarjeta); /* Sombra sutil */
+    width: 100%;
+    max-width: 420px; /* Ancho máximo del formulario */
+    text-align: center; /* Centra el texto y elementos inline como el icono */
+}
+
+.login-form-container h1 {
+    font-size: 1.5em; /* Tamaño del título "Bienvenido..." */
+    color: var(--gris-texto-principal);
+    margin-top: 0;
+    margin-bottom: 20px;
+    font-weight: 600;
+}
+
+.user-icon-container {
+    margin-bottom: 25px; /* Espacio debajo del icono */
+}
+
+.user-icon-container svg {
+    stroke: var(--azul-principal); /* Color del icono */
+}
+
+.form-group {
+    margin-bottom: 18px; /* Espacio entre campos de entrada */
+}
+
+.form-group input[type="text"],
+.form-group input[type="password"] {
+    width: 100%;
+    padding: 14px 16px; /* Padding interno de los inputs */
+    border: 1px solid var(--gris-borde-input);
+    border-radius: 6px; /* Bordes redondeados para inputs */
+    font-size: 1rem;
+    box-sizing: border-box;
+    font-family: var(--fuente-principal);
+    color: var(--gris-texto-secundario);
+}
+
+.form-group input[type="text"]::placeholder,
+.form-group input[type="password"]::placeholder {
+    color: #a0aec0; /* Color del placeholder */
+}
+
+.form-group input[type="text"]:focus,
+.form-group input[type="password"]:focus {
+    outline: none;
+    border-color: var(--azul-principal);
+    box-shadow: 0 0 0 0.2rem rgba(74, 144, 226, 0.25); /* Sombra de foco */
+}
+
+.btn-login {
+    background-color: var(--azul-principal);
+    color: var(--blanco);
+    border: none;
+    padding: 14px 15px;
+    border-radius: 6px;
+    font-size: 1.05em;
+    font-weight: 600;
+    cursor: pointer;
+    width: 100%;
+    transition: background-color 0.2s ease;
+    font-family: var(--fuente-principal);
+    margin-top: 10px; /* Espacio sobre el botón */
+    margin-bottom: 20px; /* Espacio debajo del botón */
+}
+
+.btn-login:hover {
+    background-color: #3a7bc8; /* Azul un poco más oscuro para el hover */
+}
+
+.forgot-password-link {
+    font-size: 0.9em;
+}
+
+.forgot-password-link a {
+    color: var(--azul-principal);
+    text-decoration: none;
+}
+
+.forgot-password-link a:hover {
+    text-decoration: underline;
+}
+
+/* Ajustes responsivos básicos */
+@media (max-width: 480px) {
+    .login-form-container {
+        padding: 30px 25px; /* Menos padding en pantallas pequeñas */
+        margin: 0 10px; /* Para que no pegue a los bordes */
+    }
+
+    .login-form-container h1 {
+        font-size: 1.3em; /* Título un poco más pequeño */
+    }
+
+    .user-icon-container svg {
+        width: 50px; /* Icono un poco más pequeño */
+        height: 50px;
+    }
+}

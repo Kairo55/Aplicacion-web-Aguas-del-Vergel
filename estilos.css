@@ -1,0 +1,425 @@
+:root {
+    --azul-oscuro-primario: #152259;
+    --azul-claro: #509cdb;
+    --blanco: #ffffff;
+    --azul-hover: #2c3e6f;
+    --gris-fondo: #f4f7fa; /* Un gris más suave para el fondo */
+    --gris-borde: #dee2e6;
+    --texto-principal: #495057;
+    --gris-cabezera: #f8f9fa;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Kumbh Sans", sans-serif;
+    font-weight: 430;
+    font-style: normal;
+}
+
+/* Estructura General del Panel */
+.panel {
+    display: flex;
+    min-height: 100vh;
+    background-color: var(--gris-fondo);
+}
+
+.barra-lateral {
+    width: 310px;
+    background-color: var(--azul-oscuro-primario);
+    color: var(--blanco);
+    flex-shrink: 0; /* Evita que la barra lateral se encoja */
+    display: flex;
+    flex-direction: column;
+    z-index: 1001; /* Debe estar por encima del contenido */
+}
+
+.logo {
+    padding: 20px;
+    text-align: center;
+    border-bottom: 1px solid var(--azul-hover);
+}
+
+.logo img {
+    max-width: 150px;
+}
+
+.contenedor-menu {
+    flex-grow: 1;
+    overflow-y: auto; /* Permite scroll si el menú es muy largo */
+    padding: 10px 0;
+}
+
+nav {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* Estilos de Navegación */
+.seccion-nav {
+    margin-bottom: 10px;
+    width: 290px;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.encabezado-nav {
+    display: flex;
+    align-items: center;
+    padding: 12px 20px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    background-color: transparent;
+}
+
+.encabezado-nav.activo {
+    background-color: var(--azul-claro);
+}
+
+.encabezado-nav i.desplegable {
+    margin-left: auto;
+}
+
+.elemento-nav {
+    display: flex;
+    align-items: center;
+    padding: 10px 20px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    border-radius: 4px;
+}
+
+.elemento-nav:hover {
+    background-color: var(--azul-hover);
+}
+
+.elemento-nav.seleccionado {
+    background-color: var(--blanco);
+    color: var(--azul-oscuro-primario);
+    font-weight: 600;
+}
+
+.elemento-nav.seleccionado span {
+    color: var(--azul-oscuro-primario);
+}
+
+.submenu {
+    display: none;
+    padding: 4px 0 4px 15px;
+    background-color: rgba(0, 0, 0, 0.1);
+}
+
+.submenu.visible {
+    display: block;
+}
+
+.submenu .elemento-nav {
+    padding: 10px 20px;
+    margin-bottom: 4px;
+}
+
+.submenu .elemento-nav:last-child {
+    margin-bottom: 0;
+}
+
+/* Estilos para Iconos */
+.icono,
+.icono-img {
+    width: 16px;
+    height: 16px;
+    margin-right: 10px;
+    flex-shrink: 0;
+}
+
+.icono.desplegable {
+    width: 10px;
+    height: 10px;
+    border-right: 2px solid white;
+    border-bottom: 2px solid white;
+    transform: rotate(45deg);
+    transition: transform 0.3s;
+    margin-right: 0; /* Ajuste para la flecha */
+}
+
+.encabezado-nav.activo .icono.desplegable {
+    transform: rotate(-135deg);
+}
+
+/* === ESTILOS PARA EL CONTENIDO PRINCIPAL === */
+.contenido {
+    flex-grow: 1;
+    height: 100vh; /* Ocupa toda la altura de la ventana */
+    overflow-y: auto; /* El scroll se aplica aquí */
+    position: relative; /* Contexto para elementos posicionados */
+}
+
+/* Header fijo dentro del área de contenido */
+.header-simulado-contenido {
+    position: sticky; /* Fija el header al hacer scroll */
+    top: 0;
+    z-index: 10;
+    background-color: var(--blanco);
+    color: var(--texto-principal);
+    padding: 12px 24px;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    border-bottom: 1px solid var(--gris-borde);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+/* Estilo base para todas las vistas de contenido */
+.vista-contenido {
+    padding: 24px;
+    background-color: transparent; /* El fondo lo da el contenedor .contenido */
+}
+
+/* Estilos para el Panel de Búsqueda */
+.panel-busqueda {
+    background-color: var(--blanco);
+    border: 1px solid var(--gris-borde);
+    border-radius: 6px;
+    margin-bottom: 24px;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+}
+
+.panel-body {
+    padding: 16px;
+}
+
+.control-label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+    color: var(--azul-oscuro-primario);
+}
+
+.input-group {
+    display: flex;
+    width: 100%;
+}
+
+.form-control {
+    flex-grow: 1;
+    padding: 8px 12px;
+    border: 1px solid #ced4da;
+    border-radius: 4px 0 0 4px;
+    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+.form-control:focus {
+    border-color: var(--azul-claro);
+    outline: 0;
+    box-shadow: 0 0 0 0.2rem rgba(80, 156, 219, 0.25);
+}
+
+.input-group-btn {
+    display: flex;
+}
+
+.help-block {
+    margin-top: 8px;
+    color: #6c757d;
+    font-size: 0.875em;
+}
+
+/* Estilos para Botones */
+.btn {
+    cursor: pointer;
+    border: 1px solid transparent;
+    padding: 8px 16px;
+    font-size: 14px;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.btn-primary {
+    color: var(--blanco);
+    background-color: var(--azul-claro);
+    border-color: var(--azul-claro);
+}
+
+.btn-primary:hover {
+    background-color: #3b8cc6;
+    border-color: #3b8cc6;
+}
+
+.btn-secondary {
+    color: var(--texto-principal);
+    background-color: #e9ecef;
+    border-color: #e9ecef;
+}
+
+.btn-secondary:hover {
+    background-color: #dae0e5;
+    border-color: #dae0e5;
+}
+
+.input-group .btn-primary {
+    border-radius: 0 4px 4px 0;
+}
+
+.btn-sm {
+    padding: 6px 12px;
+    font-size: 13px;
+    margin: 4px; /* Espacio entre botones en vista móvil */
+}
+
+/* Estilo para botón de advertencia (naranja) */
+.btn-warning {
+    color: var(--blanco);
+    background-color: #f0ad4e;
+    border-color: #eea236;
+}
+
+.btn-warning:hover {
+    background-color: #ec971f;
+    border-color: #d58512;
+}
+
+/* Estilos para Menú de Hamburguesa */
+.menu-hamburguesa {
+    display: none; /* Oculto en escritorio */
+    flex-direction: column;
+    justify-content: space-around;
+    width: 30px;
+    height: 30px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+}
+
+.hamburguesa-linea {
+    width: 30px;
+    height: 3px;
+    background-color: var(--blanco);
+    border-radius: 3px;
+    transition: all 0.3s linear;
+}
+
+/* === DISEÑO ADAPTABLE (Responsive Design) === */
+
+@media (max-width: 992px) {
+    .panel {
+        flex-direction: column; /* Apila la barra lateral y el contenido */
+    }
+
+    .barra-lateral {
+        width: 100%;
+        height: auto; /* La altura se ajusta al contenido */
+        flex-direction: row; /* Logo y menú en una fila */
+        align-items: center;
+        justify-content: space-between;
+        padding: 10px 20px;
+        position: relative; /* Contexto para el menú desplegable */
+    }
+
+    .logo {
+        border-bottom: none;
+        padding: 0;
+    }
+
+    /* Mostrar botón de hamburguesa y ocultar menú principal */
+    .menu-hamburguesa {
+        display: flex;
+    }
+
+    .contenedor-menu {
+        display: none; /* Oculto por defecto en móvil */
+        position: absolute;
+        top: 100%; /* Justo debajo de la barra-lateral */
+        left: 0;
+        width: 100%;
+        background-color: var(--azul-oscuro-primario);
+        padding: 10px 0;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        max-height: calc(
+            100vh - 70px
+        ); /* Evita que sea más alto que la pantalla */
+        overflow-y: auto;
+    }
+
+    /* Clase que se añade con JS para mostrar el menú */
+    .contenedor-menu.menu-visible {
+        display: block;
+    }
+
+    .contenido {
+        height: auto; /* Ajusta la altura al contenido */
+    }
+}
+
+/* Para pantallas muy pequeñas (móviles) */
+@media (max-width: 768px) {
+    /* Transformación de la tabla a formato de tarjetas */
+    .responsive-table thead {
+        display: none; /* Oculta los encabezados de la tabla */
+    }
+
+    .responsive-table tr {
+        display: block;
+        border: 1px solid var(--gris-borde);
+        border-radius: 6px;
+        margin-bottom: 20px;
+        padding: 0;
+        background-color: var(--blanco);
+        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+    }
+
+    .responsive-table tbody tr:hover {
+        background-color: var(--blanco); /* Sobrescribe hover general */
+    }
+
+    .responsive-table tbody tr:last-of-type {
+        margin-bottom: 0;
+    }
+
+    .responsive-table td {
+        display: flex; /* Alinea el label y el contenido */
+        justify-content: space-between;
+        padding: 10px 15px;
+        text-align: right; /* Alinea el valor a la derecha */
+        border-bottom: 1px solid #f1f1f1;
+    }
+
+    .responsive-table td:last-child {
+        border-bottom: none;
+    }
+
+    .responsive-table td::before {
+        content: attr(data-title); /* Usa el atributo data-title como label */
+        font-weight: bold;
+        text-align: left; /* Alinea el label a la izquierda */
+        margin-right: 15px;
+        color: var(--azul-oscuro-primario);
+    }
+
+    .responsive-table th[scope="row"] {
+        display: block;
+        background-color: var(--azul-hover);
+        color: white;
+        padding: 12px 15px;
+        border-radius: 6px 6px 0 0;
+        text-align: center;
+        font-size: 1.1em;
+    }
+
+    .responsive-table th[scope="row"]::before {
+        content: ""; /* Evita que aparezca el data-title para el suscriptor principal */
+        padding: 0;
+    }
+
+    .responsive-table td[data-title="Acciones"] {
+        justify-content: center;
+        flex-wrap: wrap; /* Permite que los botones se envuelvan */
+        background-color: var(--gris-cabezera);
+        border-radius: 0 0 6px 6px;
+    }
+}

@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Panel de Aguas del Vergel</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Courier+Prime:ital,wght@0,400;0,700;1,400;1,700&family=Kumbh+Sans:wght@100..900&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="estilos.css" />
+  </head>
+  <body>
+    <div class="panel">
+      <aside class="barra-lateral">
+        <div class="logo">
+          <img src="Iconos/Rectangle 1477.png" alt="Logo Aguas del Vergel" />
+        </div>
+        <div class="contenedor-menu">
+          <nav>
+            <div class="seccion-nav">
+              <div class="encabezado-nav" id="menu-inicio">
+                <img src="Iconos/inicio.png" class="icono" alt="Icono Inicio" />
+                <span>Inicio</span>
+              </div>
+            </div>
+
+            <div class="seccion-nav">
+              <div class="encabezado-nav" id="menu-configuracion">
+                <img
+                  src="Iconos/Factura.png"
+                  class="icono-img"
+                  alt="Icono Configuración"
+                />
+                <span>Facturas</span>
+                <i class="icono desplegable"></i>
+              </div>
+              <div class="submenu" id="submenu-configuracion">
+                <div class="elemento-nav">
+                  <img
+                    src="Iconos/pendientes.png"
+                    class="icono"
+                    alt="Icono roll"
+                  />
+                  <span>Pendientes</span>
+                </div>
+                <div class="elemento-nav">
+                  <img
+                    src="Iconos/pagadas.png"
+                    class="icono"
+                    alt="Icono bancos"
+                  />
+                  <span>Pagadas</span>
+                </div>
+                <div class="elemento-nav">
+                  <img
+                    src="Iconos/todas.png"
+                    class="icono"
+                    alt="Icono formas de pago"
+                  />
+                  <span>Todas</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="seccion-nav">
+              <div class="encabezado-nav" id="menu-sistema">
+                <img
+                  src="Iconos/sistema.png"
+                  class="icono"
+                  alt="Icono sistema"
+                />
+                <span>Soporte</span>
+                <i class="icono desplegable"></i>
+              </div>
+              <div class="submenu" id="submenu-sistema">
+                <div class="elemento-nav">
+                  <img
+                    src="Iconos/pqr.png"
+                    class="icono"
+                    alt="Icono usuarios"
+                  />
+                  <span>PQR</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="seccion-nav">
+              <div class="encabezado-nav" id="menu-clientes">
+                <img
+                  src="Iconos/clientes.png"
+                  class="icono"
+                  alt="Icono clientes"
+                />
+                <span>Perfil</span>
+                <i class="icono desplegable"></i>
+              </div>
+              <div class="submenu" id="submenu-clientes">
+                <div class="elemento-nav">
+                  <img
+                    src="Iconos/datosPersonales.png"
+                    class="icono"
+                    alt="Icono crear cliente"
+                  />
+                  <span>Mis datos personales</span>
+                </div>
+                <div class="elemento-nav">
+                  <img
+                    src="Iconos/editar.png"
+                    class="icono"
+                    alt="Icono buscar cliente"
+                  />
+                  <span>Editar información de contacto</span>
+                </div>
+                <div class="elemento-nav">
+                  <img
+                    src="Iconos/cambiarContraseña.png"
+                    class="icono"
+                    alt="Icono registrar consumo"
+                  />
+                  <span>Cambiar contraseña</span>
+                </div>
+              </div>
+            </div>
+          </nav>
+        </div>
+      </aside>
+
+      <main class="contenido">
+        <div class="header-simulado-contenido">
+                    <div class="user-actions-contenido">
+                        <span>¡Hola, Juan Pérez!</span> &nbsp;|&nbsp;
+                        <span>Mi Perfil</span> &nbsp;|&nbsp;
+                        <span>Cerrar Sesión</span>
+                    </div>
+                </div>
+        <div id="contenido-inicio" class="vista-contenido" style="display: none">
+           
+          <div class="bienvenida-usuario">
+            <h1>Bienvenido a su Panel, Juan Pérez</h1>
+          </div>
+          <div class="resumen-general card-contenido">
+            <h2>Resumen General</h2>
+            <p>
+              Saldo Pendiente Total:
+              <span class="saldo-pendiente">$45.000</span>
+            </p>
+          </div>
+          <div class="ultima-factura card-contenido">
+            <h2>Última Factura Pendiente</h2>
+            <p><strong>N° Factura:</strong> 123456789</p>
+            <p><strong>Periodo:</strong> Abril 2025</p>
+            <p><strong>Vence:</strong> 20/05/2025</p>
+            <p><strong>Monto:</strong> $45.000</p>
+            <div class="botones-factura">
+              <button class="btn-primario">Pagar Última Factura</button>
+              <button class="btn-link-contenido">Ver Detalle Completo</button>
+            </div>
+          </div>
+          <div class="alertas-noticias card-contenido">
+            <h2>Alertas y Noticias Importantes</h2>
+            <p>
+              <strong>Mantenimiento Programado:</strong> Se realizará un
+              mantenimiento en su sector el día 15/05/2025 entre las 08:00 y las
+              12:00. Podría haber interrupciones breves del servicio.
+            </p>
+          </div>
+        </div>
+
+        <!-- Vista facturas pendientes -->
+        <div
+          id="vista-facturas-pendientes"
+          class="vista-contenido"
+          style="display: none"
+        >
+          <h1>Facturas Pendientes</h1>
+
+          <div class="factura-item-layout-captura">
+            <div class="factura-info-principal">
+              <span class="estado-factura pendiente"></span>
+              <strong>Factura #123456789</strong>
+              <span class="separador-factura d-none d-md-inline">|</span>
+              <span>Periodo: Abril 2025</span>
+              <span class="separador-factura d-none d-md-inline">|</span>
+              <span>Vence: 20/05/2025</span>
+              <span class="separador-factura d-none d-md-inline">|</span>
+              <span
+                >Monto: <span class="monto-factura-valor">$45.000</span></span
+              >
+            </div>
+            <div class="factura-acciones-en-linea">
+              <button class="btn-primario chico">Pagar</button>
+              <button class="btn-secundario chico">Ver Detalle</button>
+            </div>
+          </div>
+
+          <div class="factura-item-layout-captura">
+            <div class="factura-info-principal">
+              <span class="estado-factura pendiente"></span>
+              <strong>Factura #987654321</strong>
+              <span class="separador-factura d-none d-md-inline">|</span>
+              <span>Periodo: Marzo 2025</span>
+              <span class="separador-factura d-none d-md-inline">|</span>
+              <span>Vence: 20/04/2025</span>
+              <span class="separador-factura d-none d-md-inline">|</span>
+              <span
+                >Monto: <span class="monto-factura-valor">$52.000</span></span
+              >
+            </div>
+            <div class="factura-acciones-en-linea">
+              <button class="btn-primario chico">Pagar</button>
+              <button class="btn-secundario chico">Ver Detalle</button>
+            </div>
+          </div>
+
+          <div class="factura-item-layout-captura">
+            <div class="factura-info-principal">
+              <span class="estado-factura vencida"></span>
+              <strong>Factura #000111222</strong>
+              <span class="separador-factura d-none d-md-inline">|</span>
+              <span>Periodo: Febrero 2025</span>
+              <span class="separador-factura d-none d-md-inline">|</span>
+              <span class="texto-vencida">Venció: 15/03/2025</span>
+              <span class="separador-factura d-none d-md-inline">|</span>
+              <span
+                >Monto: <span class="monto-factura-valor">$30.000</span></span
+              >
+            </div>
+            <div class="factura-acciones-en-linea">
+              <button class="btn-primario chico">Pagar</button>
+              <button class="btn-secundario chico">Ver Detalle</button>
+            </div>
+          </div>
+        </div>
+        <!-- Vista facturas pagadas -->
+        <div
+          id="vista-facturas-pagadas"
+          class="vista-contenido"
+          style="display: none"
+        >
+          <h1>Facturas Pagadas</h1>
+
+          <div class="factura-item-layout-captura">
+            <div class="factura-info-principal">
+              <span class="estado-factura pagada"></span>
+              <strong>Factura #123456876</strong>
+              <span class="separador-factura d-none d-md-inline">|</span>
+              <span>Periodo: Octubre 2024</span>
+              <span class="separador-factura d-none d-md-inline">|</span>
+              <span>Vence: 20/11/2024</span>
+              <span class="separador-factura d-none d-md-inline">|</span>
+              <span
+                >Monto: <span class="monto-factura-valor">$60.000</span></span
+              >
+            </div>
+            <div class="factura-acciones-en-linea">
+              <button class="btn-secundario chico">Ver Detalle</button>
+            </div>
+          </div>
+
+          <div class="factura-item-layout-captura">
+            <div class="factura-info-principal">
+              <span class="estado-factura pagada"></span>
+              <strong>Factura #987654456</strong>
+              <span class="separador-factura d-none d-md-inline">|</span>
+              <span>Periodo: Noviembre 2024</span>
+              <span class="separador-factura d-none d-md-inline">|</span>
+              <span>Vence: 20/12/2024</span>
+              <span class="separador-factura d-none d-md-inline">|</span>
+              <span
+                >Monto: <span class="monto-factura-valor">$48.000</span></span
+              >
+            </div>
+            <div class="factura-acciones-en-linea">
+              <button class="btn-secundario chico">Ver Detalle</button>
+            </div>
+          </div>
+
+          <div class="factura-item-layout-captura">
+            <div class="factura-info-principal">
+              <span class="estado-factura pagada"></span>
+              <strong>Factura #000111378</strong>
+              <span class="separador-factura d-none d-md-inline">|</span>
+              <span>Periodo: Diciembre 2024</span>
+              <span class="separador-factura d-none d-md-inline">|</span>
+              <span>Vence: 20/01/2025</span>
+              <span class="separador-factura d-none d-md-inline">|</span>
+              <span
+                >Monto: <span class="monto-factura-valor">$70.000</span></span
+              >
+            </div>
+            <div class="factura-acciones-en-linea">
+              <button class="btn-secundario chico">Ver Detalle</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Vista facturas todas -->
+        <div
+          id="vista-facturas-todas"
+          class="vista-contenido"
+          style="display: none"
+        >
+          <h1>Todas</h1>
+          <div class="factura-item-layout-captura">
+            <div class="factura-info-principal">
+              <span class="estado-factura pendiente"></span>
+              <strong>Factura #123456789</strong>
+              <span class="separador-factura d-none d-md-inline">|</span>
+              <span>Periodo: Abril 2025</span>
+              <span class="separador-factura d-none d-md-inline">|</span>
+              <span>Vence: 20/05/2025</span>
+              <span class="separador-factura d-none d-md-inline">|</span>
+              <span
+                >Monto: <span class="monto-factura-valor">$45.000</span></span
+              >
+            </div>
+            <div class="factura-acciones-en-linea">
+              <button class="btn-primario chico">Pagar</button>
+              <button class="btn-secundario chico">Ver Detalle</button>
+            </div>
+          </div>
+
+          <div class="factura-item-layout-captura">
+            <div class="factura-info-principal">
+              <span class="estado-factura pendiente"></span>
+              <strong>Factura #987654321</strong>
+              <span class="separador-factura d-none d-md-inline">|</span>
+              <span>Periodo: Marzo 2025</span>
+              <span class="separador-factura d-none d-md-inline">|</span>
+              <span>Vence: 20/04/2025</span>
+              <span class="separador-factura d-none d-md-inline">|</span>
+              <span
+                >Monto: <span class="monto-factura-valor">$52.000</span></span
+              >
+            </div>
+            <div class="factura-acciones-en-linea">
+              <button class="btn-primario chico">Pagar</button>
+              <button class="btn-secundario chico">Ver Detalle</button>
+            </div>
+          </div>
+
+          <div class="factura-item-layout-captura">
+            <div class="factura-info-principal">
+              <span class="estado-factura vencida"></span>
+              <strong>Factura #000111222</strong>
+              <span class="separador-factura d-none d-md-inline">|</span>
+              <span>Periodo: Febrero 2025</span>
+              <span class="separador-factura d-none d-md-inline">|</span>
+              <span class="texto-vencida">Venció: 15/03/2025</span>
+              <span class="separador-factura d-none d-md-inline">|</span>
+              <span
+                >Monto: <span class="monto-factura-valor">$30.000</span></span
+              >
+            </div>
+            <div class="factura-acciones-en-linea">
+              <button class="btn-primario chico">Pagar</button>
+              <button class="btn-secundario chico">Ver Detalle</button>
+            </div>
+          </div>
+          <div class="factura-item-layout-captura">
+            <div class="factura-info-principal">
+              <span class="estado-factura pagada"></span>
+              <strong>Factura #123456876</strong>
+              <span class="separador-factura d-none d-md-inline">|</span>
+              <span>Periodo: Octubre 2024</span>
+              <span class="separador-factura d-none d-md-inline">|</span>
+              <span>Vence: 20/11/2024</span>
+              <span class="separador-factura d-none d-md-inline">|</span>
+              <span
+                >Monto: <span class="monto-factura-valor">$60.000</span></span
+              >
+            </div>
+            <div class="factura-acciones-en-linea">
+              <button class="btn-secundario chico">Ver Detalle</button>
+            </div>
+          </div>
+
+          <div class="factura-item-layout-captura">
+            <div class="factura-info-principal">
+              <span class="estado-factura pagada"></span>
+              <strong>Factura #987654456</strong>
+              <span class="separador-factura d-none d-md-inline">|</span>
+              <span>Periodo: Noviembre 2024</span>
+              <span class="separador-factura d-none d-md-inline">|</span>
+              <span>Vence: 20/12/2024</span>
+              <span class="separador-factura d-none d-md-inline">|</span>
+              <span
+                >Monto: <span class="monto-factura-valor">$48.000</span></span
+              >
+            </div>
+            <div class="factura-acciones-en-linea">
+              <button class="btn-secundario chico">Ver Detalle</button>
+            </div>
+          </div>
+
+          <div class="factura-item-layout-captura">
+            <div class="factura-info-principal">
+              <span class="estado-factura pagada"></span>
+              <strong>Factura #000111378</strong>
+              <span class="separador-factura d-none d-md-inline">|</span>
+              <span>Periodo: Diciembre 2024</span>
+              <span class="separador-factura d-none d-md-inline">|</span>
+              <span>Vence: 20/01/2025</span>
+              <span class="separador-factura d-none d-md-inline">|</span>
+              <span
+                >Monto: <span class="monto-factura-valor">$70.000</span></span
+              >
+            </div>
+            <div class="factura-acciones-en-linea">
+              <button class="btn-secundario chico">Ver Detalle</button>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <script src="script.js"></script>
+  </body>
+</html>

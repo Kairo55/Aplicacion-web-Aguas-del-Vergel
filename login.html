@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Iniciar Sesión</title>
+    <link rel="stylesheet" href="login_estilos.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Kumbh+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="login-page-container">
+        <main class="login-main-content">
+            <div class="login-form-container">
+                <h1>Bienvenido, Inicia sesión en tu cuenta</h1>
+                <div class="user-icon-container">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="feather feather-user">
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="12" cy="7" r="4"></circle>
+                    </svg>
+                </div>
+                <form id="loginForm" action="#" method="POST">
+                    <div class="form-group">
+                        <input type="text" id="username" name="username" placeholder="Ingrese su usuario" required>
+                    </div>
+                    <div class="form-group">
+                        <input type="password" id="password" name="password" placeholder="Ingrese su contraseña" required>
+                    </div>
+                    <button type="submit" class="btn-login">Inicia Sesión</button>
+                    <div class="forgot-password-link">
+                        <a href="#">¿Olvidó su contraseña?</a>
+                    </div>
+                </form>
+            </div>
+        </main>
+    </div>
+
+    <script src="login_script.js" defer></script>
+</body>
+</html>
