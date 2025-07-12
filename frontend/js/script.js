@@ -28,7 +28,6 @@ document.addEventListener("DOMContentLoaded", function () {
     });
     // --- FIN: Inicializa Flatpickr para reporte general de facturación ---
 
-
     // --- Lógica para el Menú de Hamburguesa ---
     const menuHamburguesa = document.querySelector(".menu-hamburguesa");
     const contenedorMenu = document.querySelector(".contenedor-menu");
@@ -123,15 +122,16 @@ document.addEventListener("DOMContentLoaded", function () {
 
             clearAllMenuStates();
 
-            if (esMenuInicio) {                  
+            if (esMenuInicio) {
                 this.classList.add("activo");
                 mostrarVista("contenido-inicio");
-                cerrarMenuMovil(); 
-               } else if (esMenuComunicaciones) {
-            this.classList.add("activo");
-            mostrarVista("vista-comunicaciones");
-            cerrarMenuMovil();   
-            } else if (submenu) {                  //inicio modificacion
+                cerrarMenuMovil();
+            } else if (esMenuComunicaciones) {
+                this.classList.add("activo");
+                mostrarVista("vista-comunicaciones");
+                cerrarMenuMovil();
+            } else if (submenu) {
+                //inicio modificacion
                 if (!isCurrentlyActive) {
                     this.classList.add("activo");
                     submenu.classList.add("visible");
@@ -211,6 +211,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 console.log("Cargando vista: Generar Comprobante de pago...");
             } else if (textoSeleccionado === "Lista de Suscriptores") {
                 mostrarVista("vista-lista-suscriptores");
+                cargarSuscriptores(); // Asumiendo que esta función está definida para cargar los suscriptores
                 console.log("Cargando vista: Lista de Suscriptores...");
             } else if (textoSeleccionado === "Estado de Cartera") {
                 mostrarVista("vista-estado-cartera");
@@ -309,28 +310,33 @@ document.addEventListener("DOMContentLoaded", function () {
             } else if (textoSeleccionado === "Registrar Lecturas") {
                 mostrarVista("vista-registrar-lecturas");
                 console.log("Cargando vista: Registrar Lecturas...");
-            } else if (textoSeleccionado === "Lecturas") { 
+            } else if (textoSeleccionado === "Lecturas") {
                 mostrarVista("vista-lecturas");
                 console.log("Cargando vista: Lecturas...");
-            } else if (textoSeleccionado === "Crear acuerdo de pago") { 
+            } else if (textoSeleccionado === "Crear acuerdo de pago") {
                 mostrarVista("vista-crear-acuerdo-pago");
-                console.log("Cargando vista: Crear acuerdo de pago...");              
-            } else if (textoSeleccionado === "Créditos") { 
+                console.log("Cargando vista: Crear acuerdo de pago...");
+            } else if (textoSeleccionado === "Créditos") {
                 mostrarVista("vista-creditos");
-                console.log("Cargando vista: Créditos..."); 
+                console.log("Cargando vista: Créditos...");
             } else if (textoSeleccionado === "Reporte de pagos") {
                 mostrarVista("vista-reporte-pagos");
                 console.log("Cargando vista: Reporte de pagos...");
             } else if (textoSeleccionado === "Reporte general de facturación") {
                 mostrarVista("vista-reporte-general-facturacion");
-                console.log("Cargando vista: Reporte general de facturación...");
-            } else if (textoSeleccionado === "Importar lecturas") { // <-- AÑADIR ESTE BLOQUE
+                console.log(
+                    "Cargando vista: Reporte general de facturación..."
+                );
+            } else if (textoSeleccionado === "Importar lecturas") {
+                // <-- AÑADIR ESTE BLOQUE
                 mostrarVista("vista-importar-lecturas");
                 console.log("Cargando vista: Importar lecturas...");
-            } else if (textoSeleccionado === "Importar pagos") { // <-- AÑADIR ESTE BLOQUE
+            } else if (textoSeleccionado === "Importar pagos") {
+                // <-- AÑADIR ESTE BLOQUE
                 mostrarVista("vista-importar-pagos");
                 console.log("Cargando vista: Importar pagos...");
-            } else if (textoSeleccionado === "Importar Otros Cargos") { // <-- AÑADIR ESTE BLOQUE
+            } else if (textoSeleccionado === "Importar Otros Cargos") {
+                // <-- AÑADIR ESTE BLOQUE
                 mostrarVista("vista-importar-otros-cargos");
                 console.log("Cargando vista: Importar Otros Cargos...");
             } else if (textoSeleccionado === "Pendientes") {
@@ -593,13 +599,15 @@ document.addEventListener("click", (e) => {
 // Inicialización
 updateYearDisplay();
 updateInput();
- 
+
 // --- INICIO: LÓGICA PARA EL PANEL DE COMUNICACIONES ---
 document.addEventListener("DOMContentLoaded", function () {
     const formComunicado = document.getElementById("form-comunicado");
     const comunicadoImagenInput = document.getElementById("comunicadoImagen");
     const comunicadoPreview = document.getElementById("comunicadoPreview");
-    const tablaComunicadosBody = document.getElementById("tabla-comunicados-body");
+    const tablaComunicadosBody = document.getElementById(
+        "tabla-comunicados-body"
+    );
     const placeholderImage = "Iconos/placeholder-image.png"; // Ruta a tu imagen de placeholder
 
     // 1. Lógica para la previsualización de la imagen
@@ -626,8 +634,10 @@ document.addEventListener("DOMContentLoaded", function () {
             // Obtener valores del formulario
             const titulo = document.getElementById("comunicadoTitulo").value;
             const imagenSrc = comunicadoPreview.src;
-            const fechaInicioValue = document.getElementById("comunicadoInicio").value;
-            const fechaFinValue = document.getElementById("comunicadoFin").value;
+            const fechaInicioValue =
+                document.getElementById("comunicadoInicio").value;
+            const fechaFinValue =
+                document.getElementById("comunicadoFin").value;
 
             // Validar que las fechas no estén vacías
             if (!fechaInicioValue || !fechaFinValue) {
@@ -654,8 +664,15 @@ document.addEventListener("DOMContentLoaded", function () {
             }
 
             // Formatear fechas para mostrar en la tabla
-            const opcionesFecha = { day: '2-digit', month: 'short', year: 'numeric' };
-            const periodo = `${fechaInicio.toLocaleDateString('es-ES', opcionesFecha)} - ${fechaFin.toLocaleDateString('es-ES', opcionesFecha)}`;
+            const opcionesFecha = {
+                day: "2-digit",
+                month: "short",
+                year: "numeric",
+            };
+            const periodo = `${fechaInicio.toLocaleDateString(
+                "es-ES",
+                opcionesFecha
+            )} - ${fechaFin.toLocaleDateString("es-ES", opcionesFecha)}`;
 
             // Crear la nueva fila (TR)
             const nuevaFila = document.createElement("tr");
@@ -676,85 +693,95 @@ document.addEventListener("DOMContentLoaded", function () {
             formComunicado.reset();
             comunicadoPreview.src = placeholderImage; // Restaurar la imagen de placeholder
             alert("Campaña guardada y programada con éxito.");
-            
-            
         });
-        
     }
     // --- INICIO: LÓGICA PARA EL FORMULARIO DE IMPORTAR LECTURAS (CON VALIDACIÓN) ---
-const fileUploadInput = document.getElementById('file-upload');
-const fileNameDisplay = document.getElementById('file-name');
-const importForm = document.getElementById('form-importar-lecturas');
-const processButton = document.getElementById('btn-procesar-archivo');
-const errorMessageDiv = document.getElementById('file-error-message');
+    const fileUploadInput = document.getElementById("file-upload");
+    const fileNameDisplay = document.getElementById("file-name");
+    const importForm = document.getElementById("form-importar-lecturas");
+    const processButton = document.getElementById("btn-procesar-archivo");
+    const errorMessageDiv = document.getElementById("file-error-message");
 
-if (fileUploadInput && fileNameDisplay && processButton && errorMessageDiv) {
-    fileUploadInput.addEventListener('change', () => {
-        // Limpiar errores y estado previos
-        errorMessageDiv.textContent = '';
-        processButton.disabled = true;
-
-        if (fileUploadInput.files.length > 0) {
-            const fileName = fileUploadInput.files[0].name;
-            const fileExtension = fileName.split('.').pop().toLowerCase();
-            const allowedExtensions = ['csv', 'xls', 'xlsx'];
-
-            if (allowedExtensions.includes(fileExtension)) {
-                // Extensión Válida
-                fileNameDisplay.textContent = fileName;
-                fileNameDisplay.style.fontStyle = 'normal';
-                processButton.disabled = false; // Habilitar el botón de procesar
-            } else {
-                // Extensión Inválida
-                errorMessageDiv.textContent = `La extensión de archivo "${fileExtension}" no está permitida. Las extensiones permitidas son: csv, xls, xlsx.`;
-                fileNameDisplay.textContent = 'Ningún archivo seleccionado';
-                fileNameDisplay.style.fontStyle = 'italic';
-                fileUploadInput.value = ''; // Limpiar el archivo inválido del input
-            }
-        } else {
-            fileNameDisplay.textContent = 'Ningún archivo seleccionado';
-            fileNameDisplay.style.fontStyle = 'italic';
-        }
-    });
-}
-
-if (importForm) {
-    importForm.addEventListener('submit', (e) => {
-        e.preventDefault();
-        alert(`Archivo "${fileNameDisplay.textContent}" enviado para procesamiento.`);
-        
-        // Limpiar el formulario después del envío
-        importForm.reset();
-        fileNameDisplay.textContent = 'Ningún archivo seleccionado';
-        fileNameDisplay.style.fontStyle = 'italic';
-        if(processButton) {
-            processButton.disabled = true;
-        }
-
-        // Aquí se añadiría la lógica real de subida del archivo con Fetch API
-    });
-}
-// --- FIN: LÓGICA PARA EL FORMULARIO DE IMPORTAR LECTURAS ---
-
-// --- INICIO: LÓGICA PARA EL FORMULARIO DE IMPORTAR PAGOS ---
-    const pagosFileUploadInput = document.getElementById('pagos-file-upload');
-    const pagosFileNameDisplay = document.getElementById('pagos-file-name');
-    const importPagosForm = document.getElementById('form-importar-pagos');
-    const processPagosButton = document.getElementById('btn-procesar-pagos');
-    const errorPagosMessageDiv = document.getElementById('pagos-file-error-message');
-    const btnVolverPagos = document.getElementById('btn-volver-import-pagos');
-
-
-    if (pagosFileUploadInput && pagosFileNameDisplay && processPagosButton && errorPagosMessageDiv) {
-        pagosFileUploadInput.addEventListener('change', () => {
+    if (
+        fileUploadInput &&
+        fileNameDisplay &&
+        processButton &&
+        errorMessageDiv
+    ) {
+        fileUploadInput.addEventListener("change", () => {
             // Limpiar errores y estado previos
-            errorPagosMessageDiv.textContent = '';
+            errorMessageDiv.textContent = "";
+            processButton.disabled = true;
+
+            if (fileUploadInput.files.length > 0) {
+                const fileName = fileUploadInput.files[0].name;
+                const fileExtension = fileName.split(".").pop().toLowerCase();
+                const allowedExtensions = ["csv", "xls", "xlsx"];
+
+                if (allowedExtensions.includes(fileExtension)) {
+                    // Extensión Válida
+                    fileNameDisplay.textContent = fileName;
+                    fileNameDisplay.style.fontStyle = "normal";
+                    processButton.disabled = false; // Habilitar el botón de procesar
+                } else {
+                    // Extensión Inválida
+                    errorMessageDiv.textContent = `La extensión de archivo "${fileExtension}" no está permitida. Las extensiones permitidas son: csv, xls, xlsx.`;
+                    fileNameDisplay.textContent = "Ningún archivo seleccionado";
+                    fileNameDisplay.style.fontStyle = "italic";
+                    fileUploadInput.value = ""; // Limpiar el archivo inválido del input
+                }
+            } else {
+                fileNameDisplay.textContent = "Ningún archivo seleccionado";
+                fileNameDisplay.style.fontStyle = "italic";
+            }
+        });
+    }
+
+    if (importForm) {
+        importForm.addEventListener("submit", (e) => {
+            e.preventDefault();
+            alert(
+                `Archivo "${fileNameDisplay.textContent}" enviado para procesamiento.`
+            );
+
+            // Limpiar el formulario después del envío
+            importForm.reset();
+            fileNameDisplay.textContent = "Ningún archivo seleccionado";
+            fileNameDisplay.style.fontStyle = "italic";
+            if (processButton) {
+                processButton.disabled = true;
+            }
+
+            // Aquí se añadiría la lógica real de subida del archivo con Fetch API
+        });
+    }
+    // --- FIN: LÓGICA PARA EL FORMULARIO DE IMPORTAR LECTURAS ---
+
+    // --- INICIO: LÓGICA PARA EL FORMULARIO DE IMPORTAR PAGOS ---
+    const pagosFileUploadInput = document.getElementById("pagos-file-upload");
+    const pagosFileNameDisplay = document.getElementById("pagos-file-name");
+    const importPagosForm = document.getElementById("form-importar-pagos");
+    const processPagosButton = document.getElementById("btn-procesar-pagos");
+    const errorPagosMessageDiv = document.getElementById(
+        "pagos-file-error-message"
+    );
+    const btnVolverPagos = document.getElementById("btn-volver-import-pagos");
+
+    if (
+        pagosFileUploadInput &&
+        pagosFileNameDisplay &&
+        processPagosButton &&
+        errorPagosMessageDiv
+    ) {
+        pagosFileUploadInput.addEventListener("change", () => {
+            // Limpiar errores y estado previos
+            errorPagosMessageDiv.textContent = "";
             processPagosButton.disabled = true;
 
             if (pagosFileUploadInput.files.length > 0) {
                 const fileName = pagosFileUploadInput.files[0].name;
-                const fileExtension = fileName.split('.').pop().toLowerCase();
-                const allowedExtensions = ['csv', 'xls', 'xlsx'];
+                const fileExtension = fileName.split(".").pop().toLowerCase();
+                const allowedExtensions = ["csv", "xls", "xlsx"];
 
                 if (allowedExtensions.includes(fileExtension)) {
                     // Extensión Válida
@@ -763,56 +790,65 @@ if (importForm) {
                 } else {
                     // Extensión Inválida
                     errorPagosMessageDiv.textContent = `La extensión de archivo "${fileExtension}" no está permitida.`;
-                    pagosFileNameDisplay.textContent = 'Sin archivos seleccionados';
-                    pagosFileUploadInput.value = ''; // Limpiar el archivo inválido del input
+                    pagosFileNameDisplay.textContent =
+                        "Sin archivos seleccionados";
+                    pagosFileUploadInput.value = ""; // Limpiar el archivo inválido del input
                 }
             } else {
-                pagosFileNameDisplay.textContent = 'Sin archivos seleccionados';
+                pagosFileNameDisplay.textContent = "Sin archivos seleccionados";
             }
         });
     }
 
     if (importPagosForm) {
-        importPagosForm.addEventListener('submit', (e) => {
+        importPagosForm.addEventListener("submit", (e) => {
             e.preventDefault();
-            alert(`Archivo de pagos "${pagosFileNameDisplay.textContent}" enviado para procesamiento.`);
-            
+            alert(
+                `Archivo de pagos "${pagosFileNameDisplay.textContent}" enviado para procesamiento.`
+            );
+
             // Limpiar el formulario después del envío
             importPagosForm.reset();
-            pagosFileNameDisplay.textContent = 'Sin archivos seleccionados';
-            if(processPagosButton) {
+            pagosFileNameDisplay.textContent = "Sin archivos seleccionados";
+            if (processPagosButton) {
                 processPagosButton.disabled = true;
             }
         });
     }
-    
+
     if (btnVolverPagos) {
-        btnVolverPagos.addEventListener('click', () => {
+        btnVolverPagos.addEventListener("click", () => {
             // Navega a la vista anterior o a una por defecto, como la de importar lecturas
-            mostrarVista('vista-importar-lecturas');
+            mostrarVista("vista-importar-lecturas");
         });
     }
     // --- FIN: LÓGICA PARA EL FORMULARIO DE IMPORTAR PAGOS ---
     // --- INICIO: LÓGICA PARA EL FORMULARIO DE IMPORTAR OTROS CARGOS ---
-    const cargosFileUploadInput = document.getElementById('cargos-file-upload');
-    const cargosFileNameDisplay = document.getElementById('cargos-file-name');
-    const importCargosForm = document.getElementById('form-importar-cargos');
-    const processCargosButton = document.getElementById('btn-procesar-cargos');
-    const errorCargosMessageDiv = document.getElementById('cargos-file-error-message');
-    const btnVolverCargos = document.getElementById('btn-volver-import-cargos');
+    const cargosFileUploadInput = document.getElementById("cargos-file-upload");
+    const cargosFileNameDisplay = document.getElementById("cargos-file-name");
+    const importCargosForm = document.getElementById("form-importar-cargos");
+    const processCargosButton = document.getElementById("btn-procesar-cargos");
+    const errorCargosMessageDiv = document.getElementById(
+        "cargos-file-error-message"
+    );
+    const btnVolverCargos = document.getElementById("btn-volver-import-cargos");
 
-
-    if (cargosFileUploadInput && cargosFileNameDisplay && processCargosButton && errorCargosMessageDiv) {
-        cargosFileUploadInput.addEventListener('change', () => {
+    if (
+        cargosFileUploadInput &&
+        cargosFileNameDisplay &&
+        processCargosButton &&
+        errorCargosMessageDiv
+    ) {
+        cargosFileUploadInput.addEventListener("change", () => {
             // Limpiar errores y estado previos
-            errorCargosMessageDiv.textContent = '';
+            errorCargosMessageDiv.textContent = "";
             processCargosButton.disabled = true;
 
             if (cargosFileUploadInput.files.length > 0) {
                 const fileName = cargosFileUploadInput.files[0].name;
-                const fileExtension = fileName.split('.').pop().toLowerCase();
+                const fileExtension = fileName.split(".").pop().toLowerCase();
                 // Validación específica para CSV como se indica en la captura de pantalla
-                const allowedExtensions = ['csv'];
+                const allowedExtensions = ["csv"];
 
                 if (allowedExtensions.includes(fileExtension)) {
                     // Extensión Válida
@@ -821,33 +857,37 @@ if (importForm) {
                 } else {
                     // Extensión Inválida
                     errorCargosMessageDiv.textContent = `La extensión de archivo "${fileExtension}" no está permitida. Solo se aceptan archivos .csv.`;
-                    cargosFileNameDisplay.textContent = 'Sin archivos seleccionados';
-                    cargosFileUploadInput.value = ''; // Limpiar el archivo inválido del input
+                    cargosFileNameDisplay.textContent =
+                        "Sin archivos seleccionados";
+                    cargosFileUploadInput.value = ""; // Limpiar el archivo inválido del input
                 }
             } else {
-                cargosFileNameDisplay.textContent = 'Sin archivos seleccionados';
+                cargosFileNameDisplay.textContent =
+                    "Sin archivos seleccionados";
             }
         });
     }
 
     if (importCargosForm) {
-        importCargosForm.addEventListener('submit', (e) => {
+        importCargosForm.addEventListener("submit", (e) => {
             e.preventDefault();
-            alert(`Archivo de otros cargos "${cargosFileNameDisplay.textContent}" enviado para procesamiento.`);
-            
+            alert(
+                `Archivo de otros cargos "${cargosFileNameDisplay.textContent}" enviado para procesamiento.`
+            );
+
             // Limpiar el formulario después del envío
             importCargosForm.reset();
-            cargosFileNameDisplay.textContent = 'Sin archivos seleccionados';
-            if(processCargosButton) {
+            cargosFileNameDisplay.textContent = "Sin archivos seleccionados";
+            if (processCargosButton) {
                 processCargosButton.disabled = true;
             }
         });
     }
 
     if (btnVolverCargos) {
-        btnVolverCargos.addEventListener('click', () => {
+        btnVolverCargos.addEventListener("click", () => {
             // Navega a la vista anterior o a una por defecto
-            mostrarVista('vista-importar-pagos');
+            mostrarVista("vista-importar-pagos");
         });
     }
     // --- FIN: LÓGICA PARA EL FORMULARIO DE IMPORTAR OTROS CARGOS ---
@@ -865,3 +905,81 @@ function eliminarFila(boton) {
 }
 // --- FIN: LÓGICA PARA EL PANEL DE COMUNICACIONES ---
 
+// Función para cargar suscriptores desde la base de datos vía API Node.js
+async function cargarSuscriptores() {
+    const tablaBody = document.querySelector(
+        "#vista-lista-suscriptores .unified-table tbody"
+    );
+    if (!tablaBody) return;
+
+    tablaBody.innerHTML =
+        '<tr><td colspan="11" style="text-align:center;">Cargando suscriptores...</td></tr>';
+
+    try {
+        // ¡Importante! La URL ahora apunta a nuestro servidor Node.js
+        const respuesta = await fetch("http://localhost:3000/api/suscriptores");
+
+        if (!respuesta.ok) {
+            throw new Error(`Error HTTP: ${respuesta.status}`);
+        }
+
+        const suscriptores = await respuesta.json();
+        tablaBody.innerHTML = ""; // Limpiar la tabla
+
+        if (suscriptores.length === 0) {
+            tablaBody.innerHTML =
+                '<tr><td colspan="11" style="text-align:center;">No se encontraron suscriptores.</td></tr>';
+            return;
+        }
+
+        suscriptores.forEach((s) => {
+            const nombreCompleto = `${s.szPrimerNombre || ""} ${
+                s.szSegundoNombre || ""
+            } ${s.szPrimerApellido || ""} ${s.szSegundoApellido || ""}`
+                .replace(/\s+/g, " ")
+                .trim();
+
+            const filaHtml = `
+                <tr>
+                    <td data-title="ESTADO">
+                        <span class="status-activo">${s.estado || "N/A"}</span>
+                    </td>
+                    <th scope="row" data-title="SUSCRIPTOR">
+                        ${nombreCompleto}
+                        <small style="display: block; color: #6c757d; font-weight: normal;">NUID: ${
+                            s.nuid || "N/A"
+                        }</small>
+                    </th>
+                    <td data-title="NUID">${s.nuid || "N/A"}</td>
+                    <td data-title="IDENTIFICACIÓN">
+                        <span class="identificacion-tipo">${
+                            s.tipo_documento || ""
+                        }</span>
+                        <span class="identificacion-numero">${
+                            s.identificacion || "N/A"
+                        }</span>
+                    </td>
+                    <td data-title="ESTRATO">Estrato ${s.estrato || "N/A"}</td>
+                    <td data-title="RUTA">-</td>
+                    <td data-title="DIRECCIÓN">${s.direccion || "N/A"}</td>
+                    <td data-title="TEL/CELULAR">${s.telefono || "N/A"}</td>
+                    <td data-title="SALDO NO FINANCIADO" class="text-right">$0</td>
+                    <td data-title="NO. DE MEDIDOR">${
+                        s.numero_medidor || "N/A"
+                    }</td>
+                    <td data-title="Acciones">
+                        <div class="table-actions-vertical">
+                            <a href="#"><i class="fa fa-pencil-square-o"></i> Editar suscriptor</a>
+                            <a href="#"><i class="fa fa-user-o"></i> Ver suscriptor</a>
+                            <a href="#"><i class="fa fa-file-text-o"></i> Estado de cuenta</a>
+                        </div>
+                    </td>
+                </tr>
+            `;
+            tablaBody.innerHTML += filaHtml;
+        });
+    } catch (error) {
+        console.error("Error al cargar los suscriptores:", error);
+        tablaBody.innerHTML = `<tr><td colspan="11" style="text-align:center;">Error al conectar con el servidor. ¿Iniciaste el servidor con 'node server.js'?</td></tr>`;
+    }
+}
