@@ -2,12 +2,13 @@
 
 const express = require("express");
 const { testConnection, pool } = require("./db");
-const cors = require("cors"); // <-- 1. ASEGÚRATE DE QUE ESTA LÍNEA EXISTA
+const cors = require("cors");
 
 const app = express();
+app.disable("etag");
 const port = 3000;
 
-app.use(cors()); // <-- 2. ¡ESTA ES LA LÍNEA CLAVE! Debe estar aquí, antes de las rutas.
+app.use(cors());
 
 // Probamos la conexión al iniciar el servidor
 testConnection();
