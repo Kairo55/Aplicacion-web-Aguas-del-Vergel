@@ -27,7 +27,7 @@ app.get("/api/suscriptores", async (req, res) => {
         td.szNombrel AS tipo_documento,
         p.szNumeroDocumento AS identificacion,
         s.nEstratoSocioeconomico AS estrato,
-        s.szDireccionServicio AS direccion,
+        s.szNombrePredio AS nombre_predio,
         p.szTelefonoPrincipal AS telefono,
         GROUP_CONCAT(m.szNumeroSerie SEPARATOR ', ') AS numero_medidor
     FROM tblsuscriptor AS s
@@ -42,7 +42,8 @@ app.get("/api/suscriptores", async (req, res) => {
         td.szNombrel, 
         s.szCodigoCliente, 
         s.nEstratoSocioeconomico, 
-        s.szDireccionServicio
+        s.szNombrePredio,
+        p.szTelefonoPrincipal
     ORDER BY p.szPrimerApellido, p.szPrimerNombre, s.szCodigoCliente;
 `;
         const [rows] = await pool.query(sql);

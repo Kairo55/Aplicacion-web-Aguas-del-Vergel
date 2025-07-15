@@ -961,7 +961,9 @@ async function cargarSuscriptores() {
                     </td>
                     <td data-title="ESTRATO">Estrato ${s.estrato || "N/A"}</td>
                     <td data-title="RUTA">-</td>
-                    <td data-title="DIRECCIÓN">${s.direccion || "N/A"}</td>
+                    <td data-title="NOMBRE PREDIO">${
+                        s.nombre_predio || "N/A"
+                    }</td>
                     <td data-title="TEL/CELULAR">${s.telefono || "N/A"}</td>
                     <td data-title="SALDO NO FINANCIADO" class="text-right">$0</td>
                     <td data-title="NO. DE MEDIDOR">${

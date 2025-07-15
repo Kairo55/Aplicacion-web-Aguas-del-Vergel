@@ -22,7 +22,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Asegúrate de que 'usuario.html' sea el nombre correcto de tu archivo del panel
                 // y que esté en la misma carpeta, o ajusta la ruta.
                 console.log('Inicio de sesión simulado exitoso. Redirigiendo...');
-                window.location.href = 'usuario.html';
+                window.location.href = 'admin.html';
             } else {
                 // Si uno o ambos campos están vacíos, muestra una alerta.
                 alert('Por favor, ingrese su usuario y contraseña.');
