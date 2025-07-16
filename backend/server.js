@@ -56,7 +56,7 @@ app.get("/api/suscriptores", async (req, res) => {
     }
 });
 
-// NUEVO ENDPOINT para obtener los detalles de UN solo suscriptor por su NUID
+// ENDPOINT para obtener los detalles de UN solo suscriptor por su NUID
 app.get("/api/suscriptor/:nuid", async (req, res) => {
     const { nuid } = req.params;
     try {
@@ -109,7 +109,7 @@ app.put("/api/suscriptor/:nuid", async (req, res) => {
         }
         const personaId = suscriptorRows[0].fkIdPersona;
 
-        // 2. Actualizar la tabla tblpersona (SQL MODIFICADO)
+        // 2. Actualizar la tabla tblpersona
         const personaSql = `
             UPDATE tblpersona SET 
                 fkIdTipoDocumento = ?, szNumeroDocumento = ?, dtFechaExpedicion = ?, 
@@ -118,7 +118,6 @@ app.put("/api/suscriptor/:nuid", async (req, res) => {
                 szTelefonoPrincipal = ?, szTelefonoSecundario = ?
             WHERE pkIdPersona = ?;
         `;
-        // Parámetros de la consulta actualizados
         await connection.query(personaSql, [
             data.tipoDocumento,
             data.numeroDocumento,
@@ -134,7 +133,7 @@ app.put("/api/suscriptor/:nuid", async (req, res) => {
             personaId,
         ]);
 
-        // 3. Actualizar la tabla tblsuscriptor (sin cambios aquí)
+        // 3. Actualizar la tabla tblsuscriptor
         const suscriptorSql = `
             UPDATE tblsuscriptor SET 
                 szNumeroContrato = ?, szDireccionServicio = ?, szNombrePredio = ?, 
@@ -151,6 +150,22 @@ app.put("/api/suscriptor/:nuid", async (req, res) => {
             nuid,
         ]);
 
+        // --- INICIO: REGISTRO DE AUDITORÍA ---
+        const auditSql = `
+            INSERT INTO tblauditoria (fkIdUsuario, szTipoEvento, szModuloAfectado, szIdRegistroAfectado, txDetalleCambio) 
+            VALUES (?, ?, ?, ?, ?);
+        `;
+        const detalleCambio = `Se actualizaron los datos del suscriptor.`;
+        // NOTA: El ID de usuario (1) es un valor temporal.
+        await connection.query(auditSql, [
+            1,
+            "Actualización",
+            "Suscriptores",
+            nuid,
+            detalleCambio,
+        ]);
+        // --- FIN: REGISTRO DE AUDITORÍA ---
+
         await connection.commit();
         res.json({ message: "Suscriptor actualizado exitosamente." });
     } catch (error) {
@@ -163,6 +178,7 @@ app.put("/api/suscriptor/:nuid", async (req, res) => {
         if (connection) connection.release();
     }
 });
+
 // --- FIN: NUEVO ENDPOINT ---
 
 app.listen(port, () => {
