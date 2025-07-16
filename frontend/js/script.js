@@ -602,6 +602,187 @@ updateInput();
 
 // --- INICIO: LÓGICA PARA EL PANEL DE COMUNICACIONES ---
 document.addEventListener("DOMContentLoaded", function () {
+    const modalEditar = document.getElementById("modalEditarSuscriptor");
+    const formEditarSuscriptor = document.getElementById(
+        "form-editar-suscriptor"
+    );
+    const tablaSuscriptoresBody = document.querySelector(
+        "#vista-lista-suscriptores .unified-table tbody"
+    );
+
+    // 1. Usar delegación de eventos para los botones "Editar"
+    if (tablaSuscriptoresBody) {
+        tablaSuscriptoresBody.addEventListener("click", function (e) {
+            // Busca si el clic fue en un botón de editar
+            const editButton = e.target.closest('a[href="#"]'); // Selector más genérico
+            if (
+                editButton &&
+                editButton.textContent.includes("Editar suscriptor")
+            ) {
+                e.preventDefault();
+                const nuid = editButton
+                    .closest("tr")
+                    .querySelector('[data-title="NUID"]').textContent;
+                abrirModalEditar(nuid);
+            }
+        });
+    }
+
+    // 2. Función para abrir el modal y poblarlo con datos
+    async function abrirModalEditar(nuid) {
+        try {
+            const respuesta = await fetch(
+                `http://localhost:3000/api/suscriptor/${nuid}`
+            );
+            if (!respuesta.ok) {
+                throw new Error(
+                    "No se pudieron cargar los datos del suscriptor."
+                );
+            }
+            const data = await respuesta.json();
+
+            // Poblar campos del formulario
+            document.getElementById("edit-nuid").value = data.nuid;
+            document.getElementById("edit-numeroDocumento").value =
+                data.szNumeroDocumento;
+
+            // Formatear fecha para el input tipo 'date' (YYYY-MM-DD)
+            if (data.dtFechaExpedicion) {
+                document.getElementById("edit-fechaExpedicion").value =
+                    new Date(data.dtFechaExpedicion)
+                        .toISOString()
+                        .split("T")[0];
+            }
+
+            document.getElementById("edit-primerNombre").value =
+                data.szPrimerNombre;
+            document.getElementById("edit-segundoNombre").value =
+                data.szSegundoNombre || "";
+            document.getElementById("edit-primerApellido").value =
+                data.szPrimerApellido;
+            document.getElementById("edit-segundoApellido").value =
+                data.szSegundoApellido || "";
+            document.getElementById("edit-email").value = data.szEmail;
+            document.getElementById("edit-telefonoPrincipal").value =
+                data.szTelefonoPrincipal;
+            document.getElementById("edit-apellidoCasada").value =
+                data.szApellidoCasada || "";
+            document.getElementById("edit-telefonoSecundario").value =
+                data.szTelefonoSecundario || "";
+            document.getElementById("edit-numeroContrato").value =
+                data.szNumeroContrato;
+            document.getElementById("edit-direccionServicio").value =
+                data.szDireccionServicio;
+            document.getElementById("edit-nombrePredio").value =
+                data.szNombrePredio || "";
+            document.getElementById("edit-estratoSocioeconomico").value =
+                data.nEstratoSocioeconomico;
+            document.getElementById("edit-claseUsoInmueble").value =
+                data.szClaseUso;
+
+            // Poblar y seleccionar los <select>
+            populateSelect(
+                "edit-tipoDocumento",
+                data.tipos_documento,
+                data.fkIdTipoDocumento
+            );
+            populateSelect(
+                "edit-estadoCliente",
+                data.estados_cliente,
+                data.fkIdEstadoCliente
+            );
+
+            modalEditar.classList.add("show");
+        } catch (error) {
+            console.error("Error:", error);
+            alert(error.message);
+        }
+    }
+
+    // Función auxiliar para poblar los <select>
+    function populateSelect(selectId, optionsString, selectedValue) {
+        const select = document.getElementById(selectId);
+        select.innerHTML = ""; // Limpiar opciones anteriores
+        const options = optionsString.split(";");
+        options.forEach((opt) => {
+            const [value, text] = opt.split(":");
+            const optionEl = document.createElement("option");
+            optionEl.value = value;
+            optionEl.textContent = text;
+            if (value == selectedValue) {
+                optionEl.selected = true;
+            }
+            select.appendChild(optionEl);
+        });
+    }
+
+    // 3. Manejar el envío del formulario de edición
+    formEditarSuscriptor.addEventListener("submit", async function (e) {
+        e.preventDefault();
+        const nuid = document.getElementById("edit-nuid").value;
+
+        // Recopilar todos los datos del formulario en un objeto
+        const formData = {
+            tipoDocumento: document.getElementById("edit-tipoDocumento").value,
+            numeroDocumento: document.getElementById("edit-numeroDocumento")
+                .value,
+            fechaExpedicion: document.getElementById("edit-fechaExpedicion")
+                .value,
+            primerNombre: document.getElementById("edit-primerNombre").value,
+            segundoNombre: document.getElementById("edit-segundoNombre").value,
+            primerApellido: document.getElementById("edit-primerApellido")
+                .value,
+            segundoApellido: document.getElementById("edit-segundoApellido")
+                .value,
+            email: document.getElementById("edit-email").value,
+            telefonoPrincipal: document.getElementById("edit-telefonoPrincipal")
+                .value,
+            apellidoCasada: document.getElementById("edit-apellidoCasada")
+                .value,
+            telefonoSecundario: document.getElementById(
+                "edit-telefonoSecundario"
+            ).value,
+            numeroContrato: document.getElementById("edit-numeroContrato")
+                .value,
+            direccionServicio: document.getElementById("edit-direccionServicio")
+                .value,
+            nombrePredio: document.getElementById("edit-nombrePredio").value,
+            estrato: document.getElementById("edit-estratoSocioeconomico")
+                .value,
+            claseUso: document.getElementById("edit-claseUsoInmueble").value,
+            estadoCliente: document.getElementById("edit-estadoCliente").value,
+        };
+
+        try {
+            const respuesta = await fetch(
+                `http://localhost:3000/api/suscriptor/${nuid}`,
+                {
+                    method: "PUT",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify(formData),
+                }
+            );
+
+            const resultado = await respuesta.json();
+
+            if (!respuesta.ok) {
+                throw new Error(
+                    resultado.message || "Error al guardar los cambios."
+                );
+            }
+
+            alert(resultado.message); // Muestra el mensaje de éxito del servidor
+            modalEditar.classList.remove("show");
+            cargarSuscriptores(); // Recargar la lista para reflejar los cambios
+        } catch (error) {
+            console.error("Error en el envío:", error);
+            alert(error.message);
+        }
+    });
+
+    // --- FIN: LÓGICA PARA EL MODAL DE EDITAR SUSCRIPTOR ---
     const formComunicado = document.getElementById("form-comunicado");
     const comunicadoImagenInput = document.getElementById("comunicadoImagen");
     const comunicadoPreview = document.getElementById("comunicadoPreview");

@@ -5173,6 +5173,333 @@
             </div>
         </div>
 
+        <div id="modalEditarSuscriptor" class="modal">
+            <div class="modal-dialog" style="max-width: 800px">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title">Editar Suscriptor</h4>
+                        <button
+                            type="button"
+                            class="close"
+                            data-dismiss="modal"
+                            aria-label="Cerrar"
+                        >
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <form
+                            id="form-editar-suscriptor"
+                            class="form-crear-suscriptor"
+                        >
+                            <div class="form-group">
+                                <label class="control-label"
+                                    >NUID (No editable)</label
+                                >
+                                <input
+                                    type="text"
+                                    id="edit-nuid"
+                                    class="form-control"
+                                    readonly
+                                    style="background-color: #e9ecef"
+                                />
+                            </div>
+
+                            <hr />
+
+                            <section>
+                                <h4>1. Datos Personales del Titular</h4>
+                                <div class="form-grid">
+                                    <div class="form-group">
+                                        <label
+                                            for="edit-tipoDocumento"
+                                            class="control-label"
+                                            >Tipo de Documento<span
+                                                class="asteriskField"
+                                                >*</span
+                                            ></label
+                                        >
+                                        <select
+                                            id="edit-tipoDocumento"
+                                            class="form-control"
+                                            required
+                                        ></select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label
+                                            for="edit-numeroDocumento"
+                                            class="control-label"
+                                            >Número de Documento<span
+                                                class="asteriskField"
+                                                >*</span
+                                            ></label
+                                        >
+                                        <input
+                                            type="text"
+                                            id="edit-numeroDocumento"
+                                            class="form-control"
+                                            required
+                                        />
+                                    </div>
+                                    <div class="form-group">
+                                        <label
+                                            for="edit-fechaExpedicion"
+                                            class="control-label"
+                                            >Fecha de Expedición<span
+                                                class="asteriskField"
+                                                >*</span
+                                            ></label
+                                        >
+                                        <input
+                                            type="date"
+                                            id="edit-fechaExpedicion"
+                                            class="form-control"
+                                            required
+                                        />
+                                    </div>
+                                    <div class="form-group">
+                                        <label
+                                            for="edit-primerNombre"
+                                            class="control-label"
+                                            >Primer Nombre<span
+                                                class="asteriskField"
+                                                >*</span
+                                            ></label
+                                        >
+                                        <input
+                                            type="text"
+                                            id="edit-primerNombre"
+                                            class="form-control"
+                                            required
+                                        />
+                                    </div>
+                                    <div class="form-group">
+                                        <label
+                                            for="edit-segundoNombre"
+                                            class="control-label"
+                                            >Segundo Nombre</label
+                                        >
+                                        <input
+                                            type="text"
+                                            id="edit-segundoNombre"
+                                            class="form-control"
+                                        />
+                                    </div>
+                                    <div class="form-group">
+                                        <label
+                                            for="edit-primerApellido"
+                                            class="control-label"
+                                            >Primer Apellido<span
+                                                class="asteriskField"
+                                                >*</span
+                                            ></label
+                                        >
+                                        <input
+                                            type="text"
+                                            id="edit-primerApellido"
+                                            class="form-control"
+                                            required
+                                        />
+                                    </div>
+                                    <div class="form-group">
+                                        <label
+                                            for="edit-segundoApellido"
+                                            class="control-label"
+                                            >Segundo Apellido</label
+                                        >
+                                        <input
+                                            type="text"
+                                            id="edit-segundoApellido"
+                                            class="form-control"
+                                        />
+                                    </div>
+                                    <div class="form-group">
+                                        <label
+                                            for="edit-apellidoCasada"
+                                            class="control-label"
+                                            >Apellido de Casada</label
+                                        >
+                                        <input
+                                            type="text"
+                                            id="edit-apellidoCasada"
+                                            class="form-control"
+                                        />
+                                    </div>
+                                    <div class="form-group">
+                                        <label
+                                            for="edit-telefonoSecundario"
+                                            class="control-label"
+                                            >Teléfono Secundario</label
+                                        >
+                                        <input
+                                            type="tel"
+                                            id="edit-telefonoSecundario"
+                                            class="form-control"
+                                        />
+                                    </div>
+                                    <div class="form-group">
+                                        <label
+                                            for="edit-email"
+                                            class="control-label"
+                                            >Email<span class="asteriskField"
+                                                >*</span
+                                            ></label
+                                        >
+                                        <input
+                                            type="email"
+                                            id="edit-email"
+                                            class="form-control"
+                                            required
+                                        />
+                                    </div>
+                                    <div class="form-group">
+                                        <label
+                                            for="edit-telefonoPrincipal"
+                                            class="control-label"
+                                            >Teléfono Principal<span
+                                                class="asteriskField"
+                                                >*</span
+                                            ></label
+                                        >
+                                        <input
+                                            type="tel"
+                                            id="edit-telefonoPrincipal"
+                                            class="form-control"
+                                            required
+                                        />
+                                    </div>
+                                </div>
+                            </section>
+
+                            <hr />
+
+                            <section>
+                                <h4>2. Datos del Suscriptor y Servicio</h4>
+                                <div class="form-grid">
+                                    <div class="form-group">
+                                        <label
+                                            for="edit-numeroContrato"
+                                            class="control-label"
+                                            >Número de Contrato<span
+                                                class="asteriskField"
+                                                >*</span
+                                            ></label
+                                        >
+                                        <input
+                                            type="text"
+                                            id="edit-numeroContrato"
+                                            class="form-control"
+                                            required
+                                        />
+                                    </div>
+                                    <div
+                                        class="form-group form-group-full-width"
+                                    >
+                                        <label
+                                            for="edit-direccionServicio"
+                                            class="control-label"
+                                            >Dirección del Servicio<span
+                                                class="asteriskField"
+                                                >*</span
+                                            ></label
+                                        >
+                                        <input
+                                            type="text"
+                                            id="edit-direccionServicio"
+                                            class="form-control"
+                                            required
+                                        />
+                                    </div>
+                                    <div class="form-group">
+                                        <label
+                                            for="edit-nombrePredio"
+                                            class="control-label"
+                                            >Nombre del Predio</label
+                                        >
+                                        <input
+                                            type="text"
+                                            id="edit-nombrePredio"
+                                            class="form-control"
+                                        />
+                                    </div>
+                                    <div class="form-group">
+                                        <label
+                                            for="edit-estratoSocioeconomico"
+                                            class="control-label"
+                                            >Estrato<span class="asteriskField"
+                                                >*</span
+                                            ></label
+                                        >
+                                        <input
+                                            type="number"
+                                            id="edit-estratoSocioeconomico"
+                                            class="form-control"
+                                            min="1"
+                                            max="6"
+                                            required
+                                        />
+                                    </div>
+                                    <div class="form-group">
+                                        <label
+                                            for="edit-claseUsoInmueble"
+                                            class="control-label"
+                                            >Clase de Uso<span
+                                                class="asteriskField"
+                                                >*</span
+                                            ></label
+                                        >
+                                        <select
+                                            id="edit-claseUsoInmueble"
+                                            class="form-control"
+                                            required
+                                        >
+                                            <option value="Residencial">
+                                                Residencial
+                                            </option>
+                                            <option value="Comercial">
+                                                Comercial
+                                            </option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label
+                                            for="edit-estadoCliente"
+                                            class="control-label"
+                                            >Estado del Cliente<span
+                                                class="asteriskField"
+                                                >*</span
+                                            ></label
+                                        >
+                                        <select
+                                            id="edit-estadoCliente"
+                                            class="form-control"
+                                            required
+                                        ></select>
+                                    </div>
+                                </div>
+                            </section>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button
+                            type="button"
+                            class="btn btn-secondary"
+                            data-dismiss="modal"
+                        >
+                            Cerrar
+                        </button>
+                        <button
+                            type="submit"
+                            form="form-editar-suscriptor"
+                            class="btn btn-primary"
+                        >
+                            Guardar Cambios
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
         <script src="https://npmcdn.com/flatpickr/dist/l10n/es.js"></script>
         <script src="js/script.js"></script>
