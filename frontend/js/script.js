@@ -309,6 +309,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 console.log("Cargando vista: Otros Conceptos...");
             } else if (textoSeleccionado === "Registrar Lecturas") {
                 mostrarVista("vista-registrar-lecturas");
+                cargarSuscriptoresParaLectura();
                 console.log("Cargando vista: Registrar Lecturas...");
             } else if (textoSeleccionado === "Lecturas") {
                 mostrarVista("vista-lecturas");
@@ -1166,3 +1167,319 @@ async function cargarSuscriptores() {
         tablaBody.innerHTML = `<tr><td colspan="11" style="text-align:center;">Error al conectar con el servidor. ¿Iniciaste el servidor con 'node server.js'?</td></tr>`;
     }
 }
+
+//  Inicio función para cargar estos datos y llama a esa función cuando se seleccione la vista "Registrar Lecturas".
+
+// Archivo: script.js
+
+async function cargarSuscriptoresParaLectura() {
+    const tablaBody = document.querySelector(
+        "#vista-registrar-lecturas .unified-table tbody"
+    );
+    if (!tablaBody) return;
+
+    tablaBody.innerHTML = '<tr><td colspan="10">Cargando...</td></tr>'; // Colspan ajustado a 10
+
+    try {
+        const respuesta = await fetch(
+            "http://localhost:3000/api/suscriptores-para-lectura"
+        );
+        const suscriptores = await respuesta.json();
+        tablaBody.innerHTML = "";
+
+        if (suscriptores.length === 0) {
+            tablaBody.innerHTML =
+                '<tr><td colspan="10">No hay suscriptores activos para registrar lecturas.</td></tr>'; // Colspan ajustado a 10
+            return;
+        }
+
+        suscriptores.forEach((s) => {
+            const nombreCompleto = `${s.szPrimerNombre || ""} ${
+                s.szSegundoNombre || ""
+            } ${s.szPrimerApellido || ""} ${s.szSegundoApellido || ""}`
+                .replace(/\s+/g, " ")
+                .trim();
+
+            const filaHtml = `
+                <tr>
+                    <td data-title="SUSCRIPTOR">${nombreCompleto || "N/A"}</td>
+                    <td data-title="NUID">${s.nuid || "N/A"}</td>
+                    <td data-title="NÚMERO DE DOCUMENTO">${
+                        s.szNumeroDocumento || "N/A"
+                    }</td>
+                    <td data-title="RUTA">${s.ruta || "-"}</td>
+                    <td data-title="CICLO">${
+                        s.ciclo || "No asignado"
+                    }</td> <td data-title="ESTRATO">Estrato ${
+                s.estrato || "N/A"
+            }</td>
+                    <td data-title="DIRECCIÓN">${s.direccion || "N/A"}</td>
+                    <td data-title="CELULAR">${s.celular || "N/A"}</td>
+                    <td data-title="ÚLTIMA MEDICIÓN COBRADA" class="text-right">${
+                        s.ultimaMedicion || 0
+                    }</td>
+                    <td data-title="Acciones">
+                        <div class="table-actions-vertical-buttons">
+                            <button class="btn btn-primary btn-sm btn-agregar-lectura">
+                                <i class="fa fa-plus-circle" aria-hidden="true"></i>
+                                Agregar Lectura
+                            </button>
+                            <button class="btn btn-warning btn-sm btn-cambiar-medidor">
+                                <i class="fa fa-refresh" aria-hidden="true"></i>
+                                Cambiar medidor
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            `;
+            tablaBody.innerHTML += filaHtml;
+        });
+    } catch (error) {
+        console.error("Error al cargar suscriptores para lectura:", error);
+        tablaBody.innerHTML =
+            '<tr><td colspan="10" style="text-align:center;">Error al conectar con el servidor.</td></tr>'; // Colspan ajustado a 10
+    }
+}
+// Fin función para cargar estos datos y llama a esa función cuando se seleccione la vista "Registrar Lecturas".
+
+// Archivo: script.js
+
+document.addEventListener("DOMContentLoaded", function () {
+    // --- INICIO: LÓGICA PARA EL MODAL DE AGREGAR LECTURA ---
+
+    const modalLectura = document.getElementById("modalAgregarLectura");
+    const formAgregarLectura = document.getElementById("form-agregar-lectura");
+    const vistaRegistrarLecturas = document.getElementById(
+        "vista-registrar-lecturas"
+    );
+
+    // Inputs del modal
+    const modalLecturaTitulo = document.getElementById("modalLecturaTitulo");
+    const inputLecturaAnterior = document.getElementById("lectura-anterior");
+    const inputLecturaActual = document.getElementById("lectura-actual");
+    const inputFechaLectura = document.getElementById("fecha-lectura");
+    const inputConsumoCalculado = document.getElementById("consumo-calculado");
+    const inputIdMedidor = document.getElementById("lectura-id-medidor");
+    const lecturaWarning = document.getElementById("lectura-warning");
+
+    // Inicializar Flatpickr para el campo de fecha
+    const pickerFechaLectura = flatpickr(inputFechaLectura, {
+        locale: "es",
+        dateFormat: "Y-m-d", // Formato AAAA-MM-DD para compatibilidad con la DB
+        defaultDate: "today",
+    });
+
+    // 1. Abrir el modal al hacer clic en "Agregar Lectura"
+    if (vistaRegistrarLecturas) {
+        vistaRegistrarLecturas.addEventListener("click", function (e) {
+            if (e.target.classList.contains("btn-agregar-lectura")) {
+                const fila = e.target.closest("tr");
+                const nuid = fila
+                    .querySelector('[data-title="NUID"]')
+                    .textContent.trim();
+                abrirModalLectura(nuid);
+            }
+        });
+    }
+
+    async function abrirModalLectura(nuid) {
+        // Resetear el formulario y warnings
+        formAgregarLectura.reset();
+        lecturaWarning.style.display = "none";
+        inputLecturaActual.style.borderColor = "";
+
+        try {
+            const respuesta = await fetch(
+                `http://localhost:3000/api/medidor/${nuid}/ultima-lectura`
+            );
+            const data = await respuesta.json();
+
+            if (!respuesta.ok) {
+                throw new Error(data.message || "Error al obtener datos.");
+            }
+
+            // Poblar el modal
+            modalLecturaTitulo.textContent = `Agregar lectura a: ${nuid} ${data.nombreSuscriptor}`;
+            inputLecturaAnterior.value = data.lecturaAnterior;
+            inputIdMedidor.value = data.idMedidor;
+
+            modalLectura.classList.add("show");
+        } catch (error) {
+            console.error("Error:", error);
+            alert(error.message);
+        }
+    }
+
+    // 2. Calcular consumo dinámicamente
+    inputLecturaActual.addEventListener("input", function () {
+        const anterior = parseFloat(inputLecturaAnterior.value) || 0;
+        const actual = parseFloat(this.value) || 0;
+
+        if (actual < anterior) {
+            lecturaWarning.style.display = "block";
+            inputLecturaActual.style.borderColor = "#dc3545"; // Rojo
+            inputConsumoCalculado.value = 0;
+        } else {
+            lecturaWarning.style.display = "none";
+            inputLecturaActual.style.borderColor = ""; // Color por defecto
+            inputConsumoCalculado.value = actual - anterior;
+        }
+    });
+
+    // 3. Enviar el formulario para guardar la lectura
+    formAgregarLectura.addEventListener("submit", async function (e) {
+        e.preventDefault();
+
+        const anterior = parseFloat(inputLecturaAnterior.value);
+        const actual = parseFloat(inputLecturaActual.value);
+
+        if (actual < anterior) {
+            alert("Error: La lectura actual no puede ser menor a la anterior.");
+            return;
+        }
+
+        const datosLectura = {
+            idMedidor: inputIdMedidor.value,
+            lecturaActual: actual,
+            fechaLectura: inputFechaLectura.value,
+        };
+
+        try {
+            const respuesta = await fetch(
+                "http://localhost:3000/api/lecturas",
+                {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(datosLectura),
+                }
+            );
+
+            const resultado = await respuesta.json();
+
+            if (!respuesta.ok) {
+                throw new Error(
+                    resultado.message || "Error al guardar la lectura."
+                );
+            }
+
+            alert(resultado.message);
+            modalLectura.classList.remove("show");
+            // Aquí podrías agregar una función para recargar la tabla de lecturas
+            // recargarTablaDeLecturas();
+        } catch (error) {
+            console.error("Error al enviar:", error);
+            alert(error.message);
+        }
+    });
+    // --- FIN: LÓGICA PARA EL MODAL DE AGREGAR LECTURA ---
+    // --- INICIO: LÓGICA PARA EL MODAL DE CAMBIAR MEDIDOR ---
+    const modalCambiarMedidor = document.getElementById("modalCambiarMedidor");
+    const formCambiarMedidor = document.getElementById("form-cambiar-medidor");
+
+    // Inicializar Flatpickr para el nuevo campo de fecha
+    flatpickr("#cambiar-fecha-instalacion", {
+        locale: "es",
+        dateFormat: "Y-m-d", // Formato AAAA-MM-DD para la base de datos
+    });
+
+    // 1. Abrir el modal usando delegación de eventos en la vista de "Registrar Lecturas"
+    if (vistaRegistrarLecturas) {
+        vistaRegistrarLecturas.addEventListener("click", function (e) {
+            // Buscamos si el clic fue en un botón para cambiar medidor
+            const cambiarButton = e.target.closest(".btn-cambiar-medidor");
+            if (cambiarButton) {
+                const fila = cambiarButton.closest("tr");
+                const nuid = fila
+                    .querySelector('[data-title="NUID"]')
+                    .textContent.trim();
+                abrirModalCambiarMedidor(nuid);
+            }
+        });
+    }
+
+    async function abrirModalCambiarMedidor(nuid) {
+        formCambiarMedidor.reset(); // Limpiar el formulario antes de mostrarlo
+
+        try {
+            // Usamos el endpoint que ya nos da el nombre del suscriptor y el medidor actual
+            const respuesta = await fetch(
+                `http://localhost:3000/api/medidor/${nuid}/ultima-lectura`
+            );
+            const data = await respuesta.json();
+
+            if (!respuesta.ok) {
+                throw new Error(
+                    data.message || "Error al obtener datos del medidor."
+                );
+            }
+
+            // Poblar los campos del modal con la información obtenida
+            document.getElementById(
+                "modalCambiarMedidorTitulo"
+            ).textContent = `Agregar nuevo contador a: ${nuid} ${data.nombreSuscriptor}`;
+            document.getElementById(
+                "modalCambiarMedidorInfo"
+            ).textContent = `Medidor actual: ${
+                data.numeroMedidorActual || "No encontrado"
+            }.`;
+            document.getElementById("cambiar-medidor-nuid").value = nuid; // Guardamos el NUID en el campo oculto
+
+            modalCambiarMedidor.classList.add("show"); // Mostrar el modal
+        } catch (error) {
+            console.error("Error al abrir modal de cambio de medidor:", error);
+            alert(error.message);
+        }
+    }
+
+    // 2. Manejar el envío del formulario del modal
+    formCambiarMedidor.addEventListener("submit", async function (e) {
+        e.preventDefault();
+
+        const nuid = document.getElementById("cambiar-medidor-nuid").value;
+        const nuevoNumero = document.getElementById(
+            "cambiar-numero-medidor"
+        ).value;
+        const ultimaMedicion = document.getElementById(
+            "cambiar-ultima-medicion"
+        ).value;
+        const fechaInstalacion = document.getElementById(
+            "cambiar-fecha-instalacion"
+        ).value;
+
+        if (!nuevoNumero || !fechaInstalacion) {
+            alert("Por favor, complete todos los campos requeridos.");
+            return;
+        }
+
+        const datos = {
+            nuid: nuid,
+            nuevoNumeroMedidor: nuevoNumero,
+            lecturaInicial: ultimaMedicion,
+            fechaInstalacion: fechaInstalacion,
+        };
+
+        // Activamos la llamada real al backend
+        try {
+            const respuesta = await fetch(
+                "http://localhost:3000/api/medidores/cambiar",
+                {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(datos),
+                }
+            );
+            const resultado = await respuesta.json();
+            if (!respuesta.ok) {
+                // Si el servidor responde con un error, lo mostramos
+                throw new Error(resultado.message);
+            }
+            alert(resultado.message); // Muestra el mensaje de éxito del servidor
+            modalCambiarMedidor.classList.remove("show");
+            cargarSuscriptoresParaLectura(); // Recargar la lista para reflejar los cambios
+        } catch (error) {
+            console.error("Error al cambiar medidor:", error);
+            alert(error.message); // Muestra el error al usuario
+        }
+    });
+    // --- FIN: LÓGICA PARA EL MODAL DE CAMBIAR MEDIDOR ---
+});

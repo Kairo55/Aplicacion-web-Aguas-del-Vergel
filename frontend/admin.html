@@ -2394,12 +2394,14 @@
                                     <td data-title="CELULAR">-</td>
                                     <td data-title="SALDO NO FINANCIADO">$0</td>
                                     <td data-title="Acciones">
-                                        <button class="btn btn-primary btn-sm">
+                                        <button
+                                            class="btn btn-primary btn-sm btn-agregar-lectura"
+                                        >
                                             <i
                                                 class="fa fa-plus-circle"
                                                 aria-hidden="true"
                                             ></i>
-                                            Agregar concepto a facturar
+                                            Agregar Lectura
                                         </button>
                                     </td>
                                 </tr>
@@ -3098,6 +3100,7 @@
                                     <th scope="col">NUID</th>
                                     <th scope="col">NÚMERO DE DOCUMENTO</th>
                                     <th scope="col">RUTA</th>
+                                    <th scope="col">CICLO</th>
                                     <th scope="col">ESTRATO</th>
                                     <th scope="col">DIRECCIÓN</th>
                                     <th scope="col">CELULAR</th>
@@ -5500,6 +5503,228 @@
             </div>
         </div>
 
+        <div id="modalAgregarLectura" class="modal">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title" id="modalLecturaTitulo">
+                            Agregar lectura a:
+                        </h4>
+                        <button
+                            type="button"
+                            class="close"
+                            data-dismiss="modal"
+                            aria-label="Cerrar"
+                        >
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="form-agregar-lectura">
+                            <input type="hidden" id="lectura-id-medidor" />
+
+                            <div class="form-group">
+                                <label
+                                    for="lectura-anterior"
+                                    class="control-label"
+                                    >Lectura anterior:</label
+                                >
+                                <input
+                                    type="number"
+                                    id="lectura-anterior"
+                                    class="form-control"
+                                    readonly
+                                    style="background-color: #e9ecef"
+                                />
+                            </div>
+                            <div class="form-group">
+                                <label
+                                    for="lectura-actual"
+                                    class="control-label"
+                                    >Lectura actual*</label
+                                >
+                                <input
+                                    type="number"
+                                    id="lectura-actual"
+                                    class="form-control"
+                                    required
+                                    min="0"
+                                />
+                                <small
+                                    id="lectura-warning"
+                                    class="error-message"
+                                    style="display: none"
+                                    >La lectura actual no puede ser menor a la
+                                    anterior.</small
+                                >
+                            </div>
+                            <div class="form-group">
+                                <label for="fecha-lectura" class="control-label"
+                                    >Fecha de lectura*</label
+                                >
+                                <input
+                                    type="text"
+                                    id="fecha-lectura"
+                                    class="form-control"
+                                    placeholder="Seleccione una fecha..."
+                                    required
+                                />
+                            </div>
+                            <div class="form-group">
+                                <label
+                                    for="consumo-calculado"
+                                    class="control-label"
+                                    >Consumo (m³)*</label
+                                >
+                                <input
+                                    type="number"
+                                    id="consumo-calculado"
+                                    class="form-control"
+                                    readonly
+                                    style="
+                                        background-color: #e9ecef;
+                                        font-weight: bold;
+                                    "
+                                />
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button
+                            type="button"
+                            class="btn btn-secondary"
+                            data-dismiss="modal"
+                        >
+                            Cerrar
+                        </button>
+                        <button
+                            type="submit"
+                            form="form-agregar-lectura"
+                            class="btn btn-primary"
+                        >
+                            Agregar Lectura
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="modalCambiarMedidor" class="modal">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title" id="modalCambiarMedidorTitulo">
+                            Agregar nuevo contador a...
+                        </h4>
+                        <button
+                            type="button"
+                            class="close"
+                            data-dismiss="modal"
+                            aria-label="Cerrar"
+                        >
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <p
+                            id="modalCambiarMedidorInfo"
+                            style="
+                                font-weight: 500;
+                                color: var(--texto-principal);
+                            "
+                        >
+                            Medidor actual: ...
+                        </p>
+                        <p
+                            class="help-block"
+                            style="margin-bottom: 1.5rem; font-size: 0.9em"
+                        >
+                            Si agrega un nuevo medidor, el medidor actual ya no
+                            se utilizará para registrar el consumo.
+                        </p>
+
+                        <form id="form-cambiar-medidor">
+                            <input type="hidden" id="cambiar-medidor-nuid" />
+
+                            <div class="form-group">
+                                <label
+                                    for="cambiar-numero-medidor"
+                                    class="control-label"
+                                    >Número de medidor<span
+                                        class="asteriskField"
+                                        style="color: red"
+                                        >*</span
+                                    ></label
+                                >
+                                <input
+                                    type="text"
+                                    id="cambiar-numero-medidor"
+                                    class="form-control"
+                                    required
+                                />
+                            </div>
+
+                            <div class="form-group">
+                                <label
+                                    for="cambiar-ultima-medicion"
+                                    class="control-label"
+                                    >Última medición<span
+                                        class="asteriskField"
+                                        style="color: red"
+                                        >*</span
+                                    ></label
+                                >
+                                <input
+                                    type="number"
+                                    id="cambiar-ultima-medicion"
+                                    class="form-control"
+                                    value="0"
+                                    required
+                                />
+                                <small class="help-block"
+                                    >Valor de la última medición realizada al
+                                    contador.</small
+                                >
+                            </div>
+
+                            <div class="form-group">
+                                <label
+                                    for="cambiar-fecha-instalacion"
+                                    class="control-label"
+                                    >Fecha de instalación<span
+                                        class="asteriskField"
+                                        style="color: red"
+                                        >*</span
+                                    ></label
+                                >
+                                <input
+                                    type="text"
+                                    id="cambiar-fecha-instalacion"
+                                    class="form-control"
+                                    placeholder="Seleccione una fecha..."
+                                    required
+                                />
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button
+                            type="button"
+                            class="btn btn-secondary"
+                            data-dismiss="modal"
+                        >
+                            Cerrar
+                        </button>
+                        <button
+                            type="submit"
+                            form="form-cambiar-medidor"
+                            class="btn btn-primary"
+                        >
+                            Confirmar Cambio
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
         <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
         <script src="https://npmcdn.com/flatpickr/dist/l10n/es.js"></script>
         <script src="js/script.js"></script>
