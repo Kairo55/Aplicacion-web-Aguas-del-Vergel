@@ -13,15 +13,9 @@ document.addEventListener("DOMContentLoaded", function () {
     flatpickr("#reporteHasta", { locale: "es", dateFormat: "d-F-Y" });
     flatpickr("#reporteGenDesde", { locale: "es", dateFormat: "d-F-Y" });
     flatpickr("#reporteGenHasta", { locale: "es", dateFormat: "d-F-Y" });
-    flatpickr("#fecha-lectura", {
-        locale: "es",
-        dateFormat: "Y-m-d",
-        defaultDate: "today",
-    });
-    flatpickr("#cambiar-fecha-instalacion", {
-        locale: "es",
-        dateFormat: "Y-m-d",
-    });
+    flatpickr("#fecha-lectura", {locale: "es",dateFormat: "Y-m-d",defaultDate: "today"});
+    flatpickr("#cambiar-fecha-instalacion", {locale: "es",dateFormat: "Y-m-d"});
+    flatpickr("#edit-fecha-lectura", { locale: "es", dateFormat: "Y-m-d" });
 
     // =============================================
     // === DECLARACIÓN DE VARIABLES GLOBALES DEL DOM
@@ -29,9 +23,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const menuHamburguesa = document.querySelector(".menu-hamburguesa");
     const contenedorMenu = document.querySelector(".contenedor-menu");
     const allEncabezadoNav = document.querySelectorAll(".encabezado-nav");
-    const allElementoNavSubmenu = document.querySelectorAll(
-        ".submenu .elemento-nav"
-    );
+    const allElementoNavSubmenu = document.querySelectorAll(".submenu .elemento-nav");
     const todasLasVistas = document.querySelectorAll(".vista-contenido");
     let elementoSeleccionadoGlobal = null;
 
@@ -69,18 +61,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const nextYearBtn = dropdown.querySelector(".next-year");
     const monthsGrid = dropdown.querySelector(".months-grid");
     const meses = [
-        "ene.",
-        "feb.",
-        "mar.",
-        "abr.",
-        "may.",
-        "jun.",
-        "jul.",
-        "ago.",
-        "sep.",
-        "oct.",
-        "nov.",
-        "dic.",
+        "ene.", "feb.", "mar.", "abr.", "may.", "jun.", "jul.", "ago.", "sep.", "oct.", "nov.", "dic.",
     ];
     let currentYear = new Date().getFullYear();
     let selectedMonth = new Date().getMonth();
@@ -143,6 +124,16 @@ document.addEventListener("DOMContentLoaded", function () {
     const modalCambiarMedidor = document.getElementById("modalCambiarMedidor");
     const formCambiarMedidor = document.getElementById("form-cambiar-medidor");
 
+    // --- INICIO: Variables para Modal de Edición de Lectura ---
+    const modalEditarLectura = document.getElementById("modalEditarLectura");
+    const formEditarLectura = document.getElementById("form-editar-lectura");
+    const tablaLecturas = document.querySelector("#vista-lecturas .unified-table tbody");
+    const inputEditLecturaActual = document.getElementById("edit-lectura-actual");
+    const inputEditLecturaAnterior = document.getElementById("edit-lectura-anterior");
+    const editLecturaWarning = document.getElementById("edit-lectura-warning");
+    const inputEditConsumo = document.getElementById("edit-consumo-calculado");
+    // --- FIN: Variables para Modal de Edición de Lectura ---
+    
     // =============================================
     // === LÓGICA DE NAVEGACIÓN PRINCIPAL (MENÚ)
     // =============================================
@@ -334,9 +325,10 @@ document.addEventListener("DOMContentLoaded", function () {
             else if (textoSeleccionado === "Registrar Lecturas") {
                 mostrarVista("vista-registrar-lecturas");
                 cargarSuscriptoresParaLectura();
-            } else if (textoSeleccionado === "Lecturas")
+            } else if (textoSeleccionado === "Lecturas") {
                 mostrarVista("vista-lecturas");
-            else if (textoSeleccionado === "Crear acuerdo de pago")
+                cargarLecturas(); // <<-- NUEVA LLAMADA
+            } else if (textoSeleccionado === "Crear acuerdo de pago")
                 mostrarVista("vista-crear-acuerdo-pago");
             else if (textoSeleccionado === "Créditos")
                 mostrarVista("vista-creditos");
@@ -877,6 +869,130 @@ document.addEventListener("DOMContentLoaded", function () {
             }
         });
     }
+    
+    // =============================================
+    // === INICIO: LÓGICA DE EDICIÓN DE LECTURAS
+    // =============================================
+    
+    // --- Event listener para botones de Anular y Editar en la tabla de lecturas ---
+    if (tablaLecturas) {
+        tablaLecturas.addEventListener("click", async (e) => {
+            const botonAnular = e.target.closest(".btn-anular-lectura");
+            const botonEditar = e.target.closest(".btn-editar-lectura");
+
+            if (botonAnular) {
+                e.preventDefault();
+                const idLectura = botonAnular.dataset.id;
+                const confirmado = confirm(
+                    `¿Está seguro de anular la lectura ID ${idLectura}? Esta acción no se puede deshacer.`
+                );
+
+                if (confirmado) {
+                    try {
+                        const respuesta = await fetch(`http://localhost:3000/api/lecturas/${idLectura}/anular`, { method: "PUT" });
+                        const resultado = await respuesta.json();
+                        if (!respuesta.ok) throw new Error(resultado.message || "Error en el servidor.");
+                        alert(resultado.message);
+                        cargarLecturas();
+                    } catch (error) {
+                        console.error("Error al anular:", error);
+                        alert(`No se pudo anular la lectura. ${error.message}`);
+                    }
+                }
+            }
+
+            if (botonEditar) {
+                e.preventDefault();
+                const idLectura = botonEditar.dataset.id;
+                abrirModalEditarLectura(idLectura);
+            }
+        });
+    }
+
+    // --- Función para abrir y poblar el modal de edición de lectura ---
+    async function abrirModalEditarLectura(id) {
+        formEditarLectura.reset();
+        editLecturaWarning.style.display = "none";
+        inputEditLecturaActual.style.borderColor = "";
+
+        try {
+            const respuesta = await fetch(`http://localhost:3000/api/lecturas/${id}`);
+            if (!respuesta.ok) throw new Error("No se pudo cargar la información de la lectura.");
+            const data = await respuesta.json();
+
+            document.getElementById("edit-lectura-id").value = data.pkIdLectura;
+            document.getElementById("edit-lectura-anterior-valor").value = data.lecturaAnterior;
+            inputEditLecturaAnterior.value = data.lecturaAnterior;
+            inputEditLecturaActual.value = data.dcValorLectura;
+            document.getElementById("edit-fecha-lectura").value = new Date(data.dtFechaLectura).toISOString().split("T")[0];
+            inputEditConsumo.value = data.dcValorLectura - data.lecturaAnterior;
+
+            modalEditarLectura.classList.add("show");
+        } catch (error) {
+            console.error("Error al abrir modal de edición:", error);
+            alert(error.message);
+        }
+    }
+    
+    // --- Lógica de cálculo en vivo para el modal de edición ---
+    if (inputEditLecturaActual) {
+        inputEditLecturaActual.addEventListener("input", () => {
+            const anterior = parseFloat(document.getElementById("edit-lectura-anterior-valor").value) || 0;
+            const actual = parseFloat(inputEditLecturaActual.value) || 0;
+
+            if (actual < anterior) {
+                editLecturaWarning.style.display = 'block';
+                inputEditLecturaActual.style.borderColor = '#dc3545';
+                inputEditConsumo.value = 0;
+            } else {
+                editLecturaWarning.style.display = 'none';
+                inputEditLecturaActual.style.borderColor = '';
+                inputEditConsumo.value = actual - anterior;
+            }
+        });
+    }
+
+    // --- Event listener para el envío del formulario de edición de lectura ---
+    if (formEditarLectura) {
+        formEditarLectura.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const idLectura = document.getElementById("edit-lectura-id").value;
+            const anterior = parseFloat(document.getElementById("edit-lectura-anterior-valor").value);
+            const actual = parseFloat(document.getElementById("edit-lectura-actual").value);
+            
+            if (actual < anterior) {
+                alert("La lectura actual no puede ser menor que la anterior.");
+                return;
+            }
+
+            const datosParaActualizar = {
+                dcValorLectura: actual,
+                dtFechaLectura: document.getElementById("edit-fecha-lectura").value,
+            };
+
+            try {
+                const respuesta = await fetch(`http://localhost:3000/api/lecturas/${idLectura}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(datosParaActualizar)
+                });
+
+                const resultado = await respuesta.json();
+                if (!respuesta.ok) throw new Error(resultado.message);
+
+                alert(resultado.message);
+                modalEditarLectura.classList.remove("show");
+                cargarLecturas(); // Recargar la tabla para mostrar los cambios
+            } catch (error) {
+                console.error("Error al actualizar la lectura:", error);
+                alert(`Error: ${error.message}`);
+            }
+        });
+    }
+    // =============================================
+    // === FIN: LÓGICA DE EDICIÓN DE LECTURAS
+    // =============================================
+
 
     // =============================================
     // === LÓGICA DE VISTAS ESPECÍFICAS
@@ -1238,3 +1354,85 @@ async function cargarSuscriptoresParaLectura() {
             '<tr><td colspan="10" style="text-align:center;">Error al conectar con el servidor.</td></tr>';
     }
 }
+
+// =============================================
+// === INICIO: FUNCIÓN CARGAR LECTURAS (ACTUALIZADA)
+// =============================================
+async function cargarLecturas() {
+    const tablaBody = document.querySelector(
+        "#vista-lecturas .unified-table tbody"
+    );
+    if (!tablaBody) return;
+
+    tablaBody.innerHTML =
+        '<tr><td colspan="10" style="text-align:center;">Cargando historial de lecturas...</td></tr>';
+
+    try {
+        const respuesta = await fetch("http://localhost:3000/api/lecturas");
+        if (!respuesta.ok) {
+            throw new Error(`Error HTTP: ${respuesta.status}`);
+        }
+        const lecturas = await respuesta.json();
+
+        tablaBody.innerHTML = "";
+
+        if (lecturas.length === 0) {
+            tablaBody.innerHTML =
+                '<tr><td colspan="10" style="text-align:center;">No se encontraron lecturas registradas.</td></tr>';
+            return;
+        }
+
+        const opcionesFecha = {
+            day: "2-digit",
+            month: "short",
+            year: "numeric",
+        };
+
+        lecturas.forEach((l) => {
+            const nombreCompleto = `${l.szPrimerNombre || ""} ${
+                l.szSegundoNombre || ""
+            } ${l.szPrimerApellido || ""} ${l.szSegundoApellido || ""}`
+                .replace(/\s+/g, " ")
+                .trim();
+
+            const fechaLecturaFormateada = new Date(
+                l.fechaLectura
+            ).toLocaleDateString("es-ES", opcionesFecha);
+
+            const filaHtml = `
+                <tr>
+                    <td data-title="SUSCRIPTOR">${nombreCompleto}</td>
+                    <td data-title="NUID">${l.nuid || "N/A"}</td>
+                    <td data-title="NÚMERO DE DOCUMENTO">${
+                        l.szNumeroDocumento || "N/A"
+                    }</td>
+                    <td data-title="CICLO">${l.ciclo || "No asignado"}</td>
+                    <td data-title="N° CONTADOR">${
+                        l.numeroContador || "N/A"
+                    }</td>
+                    <td data-title="LECTURA">${l.lectura}m<sup>3</sup></td>
+                    <td data-title="CONSUMO">${l.consumo}m<sup>3</sup></td>
+                    <td data-title="FECHA DE LECTURA">${fechaLecturaFormateada}</td>
+                    <td data-title="FECHA DE REGISTRO">${fechaLecturaFormateada}</td>
+                    <td data-title="ACCIONES">
+                        <div style="display: flex; gap: 5px; justify-content: center;">
+                            <button class="btn btn-warning btn-sm btn-editar-lectura" data-id="${l.pkIdLectura}">
+                                <i class="fa fa-pencil" aria-hidden="true"></i> Editar
+                            </button>
+                            <button class="btn btn-sm btn-anular-lectura" data-id="${l.pkIdLectura}" style="background-color: #dc3545; color: white; border-color: #dc3545;">
+                                <i class="fa fa-ban" aria-hidden="true"></i> Anular
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            `;
+            tablaBody.innerHTML += filaHtml;
+        });
+    } catch (error) {
+        console.error("Error al cargar las lecturas:", error);
+        tablaBody.innerHTML = `<tr><td colspan="10" style="text-align:center;">Error al conectar con el servidor.</td></tr>`;
+    }
+}
+// =============================================
+// === FIN: FUNCIÓN CARGAR LECTURAS
+// =============================================

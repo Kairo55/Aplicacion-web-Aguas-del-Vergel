@@ -336,18 +336,213 @@ app.post("/api/lecturas", async (req, res) => {
 });
 
 // =============================================
-//  FIN: ENDPOINTS PARA MICROMEDICIÓN
+//  INICIO: NUEVO ENDPOINT PARA LISTAR LECTURAS
 // =============================================
+app.get("/api/lecturas", async (req, res) => {
+    try {
+        const sql = `
+            SELECT 
+                l.pkIdLectura, -- ID único de la lectura
+                p.szPrimerNombre,
+                p.szSegundoNombre,
+                p.szPrimerApellido,
+                p.szSegundoApellido,
+                s.szCodigoCliente AS nuid,
+                p.szNumeroDocumento,
+                c.szNombreCiclo AS ciclo,
+                m.szNumeroSerie AS numeroContador,
+                l.dcValorLectura AS lectura,
+                (l.dcValorLectura - LAG(l.dcValorLectura, 1, 0) OVER (PARTITION BY l.fkIdMedidor ORDER BY l.dtFechaLectura, l.pkIdLectura)) AS consumo,
+                l.dtFechaLectura AS fechaLectura,
+                l.szPeriodoConsumo
+            FROM tbllectura l
+            JOIN tblmedidor m ON l.fkIdMedidor = m.pkIdMedidor
+            JOIN tblsuscriptor s ON m.fkIdSuscriptor = s.pkIdSuscriptor
+            JOIN tblpersona p ON s.fkIdPersona = p.pkIdPersona
+            LEFT JOIN tblciclofacturacion c ON s.fkIdCiclo = c.pkIdCiclo
+            WHERE l.bAnulada = 0 -- ¡IMPORTANTE! Solo trae lecturas válidas
+            ORDER BY l.szPeriodoConsumo DESC, c.szNombreCiclo, p.szPrimerApellido;
+        `;
+        const [rows] = await pool.query(sql);
+        res.json(rows);
+    } catch (error) {
+        console.error("Error al obtener el historial de lecturas:", error);
+        res.status(500).json({
+            message: "Error interno del servidor al obtener las lecturas.",
+        });
+    }
+});
+
+// 2. AÑADE este nuevo endpoint al final de la sección de Micromedición
+// =============================================
+//  ENDPOINT PARA ANULAR UNA LECTURA
+// =============================================
+app.put("/api/lecturas/:id/anular", async (req, res) => {
+    const { id } = req.params;
+    const idUsuario = 1; // Temporal: Debería venir del sistema de autenticación
+    let connection;
+
+    try {
+        connection = await pool.getConnection();
+        await connection.beginTransaction();
+
+        // Marcar la lectura como anulada
+        const updateSql =
+            "UPDATE tbllectura SET bAnulada = 1 WHERE pkIdLectura = ?";
+        const [updateResult] = await connection.query(updateSql, [id]);
+
+        if (updateResult.affectedRows === 0) {
+            throw new Error("La lectura no fue encontrada o ya fue anulada.");
+        }
+
+        // Registrar la acción en la auditoría
+        const auditSql = `
+            INSERT INTO tblauditoria (fkIdUsuario, szTipoEvento, szModuloAfectado, szIdRegistroAfectado, txDetalleCambio) 
+            VALUES (?, 'Anulación', 'Micromedición', ?, ?);
+        `;
+        const detalle = `El usuario ${idUsuario} anuló el registro de lectura con ID ${id}.`;
+        await connection.query(auditSql, [idUsuario, id, detalle]);
+
+        await connection.commit();
+        res.json({ message: "Lectura anulada correctamente." });
+    } catch (error) {
+        if (connection) await connection.rollback();
+        console.error("Error al anular la lectura:", error);
+        res.status(500).json({
+            message: "Error interno del servidor al anular la lectura.",
+        });
+    } finally {
+        if (connection) connection.release();
+    }
+});
+// =============================================
+//  FIN: ENDPOINT PARA ANULAR LECTURAS
+// =============================================
+
+// =============================================
+//  INICIO: ENDPOINT PARA OBTENER UNA LECTURA POR ID
+// =============================================
+app.get("/api/lecturas/:id", async (req, res) => {
+    const { id } = req.params;
+    try {
+        // Obtenemos la lectura actual
+        const [lecturaActualRows] = await pool.query(
+            "SELECT * FROM tbllectura WHERE pkIdLectura = ?",
+            [id]
+        );
+        if (lecturaActualRows.length === 0) {
+            return res.status(404).json({ message: "Lectura no encontrada." });
+        }
+        const lecturaActual = lecturaActualRows[0];
+
+        // Buscamos la lectura anterior para el mismo medidor
+        const [lecturaAnteriorRows] = await pool.query(
+            `SELECT dcValorLectura 
+             FROM tbllectura 
+             WHERE fkIdMedidor = ? AND dtFechaLectura < ? AND bAnulada = 0
+             ORDER BY dtFechaLectura DESC, pkIdLectura DESC 
+             LIMIT 1`,
+            [lecturaActual.fkIdMedidor, lecturaActual.dtFechaLectura]
+        );
+        const lecturaAnterior =
+            lecturaAnteriorRows.length > 0
+                ? lecturaAnteriorRows[0].dcValorLectura
+                : 0;
+
+        res.json({ ...lecturaActual, lecturaAnterior });
+    } catch (error) {
+        console.error("Error al obtener la lectura:", error);
+        res.status(500).json({ message: "Error interno del servidor." });
+    }
+});
+// =============================================
+//  FIN: ENDPOINT PARA OBTENER UNA LECTURA POR ID
+// =============================================
+
+// =============================================
+//  INICIO: ENDPOINT PARA ACTUALIZAR UNA LECTURA
+// =============================================
+app.put("/api/lecturas/:id", async (req, res) => {
+    const { id } = req.params;
+    const { dcValorLectura, dtFechaLectura } = req.body;
+    const idUsuario = 1; // Temporal
+    let connection;
+
+    try {
+        connection = await pool.getConnection();
+        await connection.beginTransaction();
+
+        // 1. Obtener datos antiguos para auditoría y validación
+        const [oldLecturaRows] = await connection.query(
+            "SELECT * FROM tbllectura WHERE pkIdLectura = ?",
+            [id]
+        );
+        if (oldLecturaRows.length === 0)
+            throw new Error("Lectura no encontrada.");
+        const oldLectura = oldLecturaRows[0];
+
+        // 2. Validar que el nuevo valor no es mayor que una lectura posterior (si existe)
+        const [nextLecturaRows] = await connection.query(
+            `SELECT dcValorLectura FROM tbllectura WHERE fkIdMedidor = ? AND dtFechaLectura > ? AND bAnulada = 0 ORDER BY dtFechaLectura ASC, pkIdLectura ASC LIMIT 1`,
+            [oldLectura.fkIdMedidor, oldLectura.dtFechaLectura]
+        );
+
+        if (
+            nextLecturaRows.length > 0 &&
+            dcValorLectura > nextLecturaRows[0].dcValorLectura
+        ) {
+            throw new Error(
+                `El nuevo valor (${dcValorLectura}) no puede ser mayor que el valor de la siguiente lectura registrada (${nextLecturaRows[0].dcValorLectura}).`
+            );
+        }
+
+        // 3. Actualizar la lectura
+        const szPeriodoConsumo = new Date(dtFechaLectura)
+            .toISOString()
+            .slice(0, 7);
+        const updateSql =
+            "UPDATE tbllectura SET dcValorLectura = ?, dtFechaLectura = ?, szPeriodoConsumo = ? WHERE pkIdLectura = ?";
+        await connection.query(updateSql, [
+            dcValorLectura,
+            dtFechaLectura,
+            szPeriodoConsumo,
+            id,
+        ]);
+
+        // 4. Registrar en auditoría
+        const detalle = `Usuario ${idUsuario} editó lectura ID ${id}. Valor anterior: ${oldLectura.dcValorLectura}, Fecha anterior: ${oldLectura.dtFechaLectura}. Valor nuevo: ${dcValorLectura}, Fecha nueva: ${dtFechaLectura}.`;
+        const auditSql =
+            "INSERT INTO tblauditoria (fkIdUsuario, szTipoEvento, szModuloAfectado, szIdRegistroAfectado, txDetalleCambio) VALUES (?, 'Edición', 'Micromedición', ?, ?)";
+        await connection.query(auditSql, [idUsuario, id, detalle]);
+
+        await connection.commit();
+        res.json({ message: "Lectura actualizada correctamente." });
+    } catch (error) {
+        if (connection) await connection.rollback();
+        console.error("Error al actualizar la lectura:", error);
+        res.status(400).json({
+            message: error.message || "Error interno del servidor.",
+        });
+    } finally {
+        if (connection) connection.release();
+    }
+});
+// =============================================
+//  FIN: ENDPOINT PARA ACTUALIZAR UNA LECTURA
+// =============================================
+
 // =============================================
 //  INICIO: ENDPOINT PARA CAMBIAR MEDIDOR
 // =============================================
 app.post("/api/medidores/cambiar", async (req, res) => {
-    const { nuid, nuevoNumeroMedidor, lecturaInicial, fechaInstalacion } = req.body;
+    const { nuid, nuevoNumeroMedidor, lecturaInicial, fechaInstalacion } =
+        req.body;
     let connection;
 
     if (!nuid || !nuevoNumeroMedidor || !fechaInstalacion) {
         return res.status(400).json({
-            message: "Faltan datos requeridos (NUID, nuevo número de medidor, fecha de instalación).",
+            message:
+                "Faltan datos requeridos (NUID, nuevo número de medidor, fecha de instalación).",
         });
     }
 
@@ -360,7 +555,9 @@ app.post("/api/medidores/cambiar", async (req, res) => {
             [nuevoNumeroMedidor]
         );
         if (existingMeter.length > 0) {
-            throw new Error(`El número de medidor '${nuevoNumeroMedidor}' ya existe en la base de datos.`);
+            throw new Error(
+                `El número de medidor '${nuevoNumeroMedidor}' ya existe en la base de datos.`
+            );
         }
 
         const [suscriptorRows] = await connection.query(
@@ -384,20 +581,29 @@ app.post("/api/medidores/cambiar", async (req, res) => {
             VALUES (?, ?, ?, 1, 'Instalado');
         `;
         const [resultMedidor] = await connection.query(insertMedidorSql, [
-            idSuscriptor, nuevoNumeroMedidor, fechaInstalacion,
+            idSuscriptor,
+            nuevoNumeroMedidor,
+            fechaInstalacion,
         ]);
         // --- FIN: CORRECCIÓN FINAL ---
 
         const newMedidorId = resultMedidor.insertId;
 
         if (parseFloat(lecturaInicial) >= 0) {
-            const periodoConsumo = new Date(fechaInstalacion).toISOString().slice(0, 7);
+            const periodoConsumo = new Date(fechaInstalacion)
+                .toISOString()
+                .slice(0, 7);
             const insertLecturaSql = `
                 INSERT INTO tbllectura (fkIdMedidor, dtFechaLectura, dcValorLectura, szPeriodoConsumo, szTipoLectura, szIngresadoPor)
                 VALUES (?, ?, ?, ?, ?, ?);
             `;
             await connection.query(insertLecturaSql, [
-                newMedidorId, fechaInstalacion, lecturaInicial, periodoConsumo, "Instalacion", "Admin Panel",
+                newMedidorId,
+                fechaInstalacion,
+                lecturaInicial,
+                periodoConsumo,
+                "Instalacion",
+                "Admin Panel",
             ]);
         }
 
@@ -409,18 +615,20 @@ app.post("/api/medidores/cambiar", async (req, res) => {
 
         await connection.commit();
         res.status(201).json({
-            message: "¡Éxito! El medidor ha sido cambiado y registrado correctamente.",
+            message:
+                "¡Éxito! El medidor ha sido cambiado y registrado correctamente.",
         });
     } catch (error) {
         if (connection) await connection.rollback();
         console.error("Error al cambiar el medidor:", error);
 
-        if (error.code === 'ER_DUP_ENTRY') {
+        if (error.code === "ER_DUP_ENTRY") {
             return res.status(409).json({
-                message: "Error: El número de medidor que intentas registrar ya existe.",
+                message:
+                    "Error: El número de medidor que intentas registrar ya existe.",
             });
         }
-        
+
         if (error.message.includes("ya existe")) {
             return res.status(409).json({ message: error.message });
         }
