@@ -310,12 +310,6 @@ nav {
 /* ============================================= */
 /* === UNIFIED & RESPONSIVE TABLE STYLES       === */
 /* ============================================= */
-/*
- * HOW TO USE:
- * 1. On your <table> element, replace class="responsive-table" with class="unified-table".
- * 2. Wrap your table in a <div class="table-container">.
- * 3. Ensure every <td> in your table has a data-title attribute for mobile view.
-*/
 
 .table-container {
     width: 100%;
@@ -1065,5 +1059,26 @@ textarea.form-control {
         font-weight: bold;
         margin-right: 15px;
         color: var(--azul-oscuro-primario);
+    }
+}
+/* ============================================= */
+/* === ESTILOS PARA DETECCIÓN DE ANOMALÍAS   === */
+/* ============================================= */
+
+/* Estilo para la fila con consumo anómalo */
+.unified-table tr.consumo-anomalo {
+    background-color: #fffbe6 !important; /* Un amarillo pálido */
+    font-weight: 500;
+}
+
+.unified-table tr.consumo-anomalo:hover {
+    background-color: #fff4cc !important; /* Un amarillo un poco más oscuro al pasar el mouse */
+}
+
+/* En vista móvil, el color de fondo también se aplica */
+@media (max-width: 768px) {
+    .unified-table tr.consumo-anomalo,
+    .unified-table tr.consumo-anomalo:hover {
+        background-color: #fffbe6 !important;
     }
 }

@@ -223,12 +223,11 @@ app.put("/api/suscriptor/:nuid", async (req, res) => {
 //  INICIO: ENDPOINTS PARA MICROMEDICIÓN
 // =============================================
 
-// 1. Endpoint para OBTENER la última lectura de un suscriptor para el modal
+// ENPOINT: OBTENER la última lectura de un suscriptor para el modal (CORREGIDO)
 app.get("/api/medidor/:nuid/ultima-lectura", async (req, res) => {
     const { nuid } = req.params;
     try {
         // Primero, obtenemos el medidor activo para el suscriptor
-        // MODIFICACIÓN: Añadir m.szNumeroSerie a la consulta
         const medidorSql = `
             SELECT 
                 m.pkIdMedidor, 
@@ -250,13 +249,13 @@ app.get("/api/medidor/:nuid/ultima-lectura", async (req, res) => {
 
         const idMedidor = medidores[0].pkIdMedidor;
         const nombreSuscriptor = medidores[0].nombreSuscriptor;
-        const numeroMedidorActual = medidores[0].numeroMedidorActual; // <-- CAPTURAR NUEVO DATO
+        const numeroMedidorActual = medidores[0].numeroMedidorActual;
 
-        // Luego, buscamos la lectura más reciente para ese medidor
+        // Luego, buscamos la lectura más reciente VÁLIDA para ese medidor
         const lecturaSql = `
             SELECT dcValorLectura 
             FROM tbllectura 
-            WHERE fkIdMedidor = ? 
+            WHERE fkIdMedidor = ? AND bAnulada = 0 -- <<< CORRECCIÓN AÑADIDA AQUÍ
             ORDER BY dtFechaLectura DESC, pkIdLectura DESC 
             LIMIT 1;
         `;
@@ -265,12 +264,11 @@ app.get("/api/medidor/:nuid/ultima-lectura", async (req, res) => {
         const lecturaAnterior =
             lecturas.length > 0 ? lecturas[0].dcValorLectura : 0;
 
-        // MODIFICACIÓN: Añadir numeroMedidorActual a la respuesta JSON
         res.json({
             idMedidor,
             nombreSuscriptor,
             lecturaAnterior,
-            numeroMedidorActual, // <-- AÑADIR DATO A LA RESPUESTA
+            numeroMedidorActual,
         });
     } catch (error) {
         console.error("Error al obtener la última lectura:", error);
@@ -336,13 +334,32 @@ app.post("/api/lecturas", async (req, res) => {
 });
 
 // =============================================
-//  INICIO: NUEVO ENDPOINT PARA LISTAR LECTURAS
+//  INICIO: ENDPOINT LISTAR LECTURAS (CON DETECCIÓN DE ANOMALÍAS)
 // =============================================
 app.get("/api/lecturas", async (req, res) => {
     try {
         const sql = `
+            WITH LecturasConConsumo AS (
+                SELECT
+                    pkIdLectura,
+                    fkIdMedidor,
+                    dcValorLectura,
+                    dtFechaLectura,
+                    szPeriodoConsumo,
+                    (dcValorLectura - LAG(dcValorLectura, 1, dcValorLectura) OVER (PARTITION BY fkIdMedidor ORDER BY dtFechaLectura, pkIdLectura)) AS consumo
+                FROM tbllectura
+                WHERE bAnulada = 0
+            ),
+            PromediosPorMedidor AS (
+                SELECT
+                    fkIdMedidor,
+                    AVG(consumo) AS consumoPromedio
+                FROM LecturasConConsumo
+                WHERE consumo > 0
+                GROUP BY fkIdMedidor
+            )
             SELECT 
-                l.pkIdLectura, -- ID único de la lectura
+                l.pkIdLectura,
                 p.szPrimerNombre,
                 p.szSegundoNombre,
                 p.szPrimerApellido,
@@ -351,17 +368,26 @@ app.get("/api/lecturas", async (req, res) => {
                 p.szNumeroDocumento,
                 c.szNombreCiclo AS ciclo,
                 m.szNumeroSerie AS numeroContador,
-                l.dcValorLectura AS lectura,
-                (l.dcValorLectura - LAG(l.dcValorLectura, 1, 0) OVER (PARTITION BY l.fkIdMedidor ORDER BY l.dtFechaLectura, l.pkIdLectura)) AS consumo,
-                l.dtFechaLectura AS fechaLectura,
-                l.szPeriodoConsumo
+                lcc.dcValorLectura AS lectura,
+                lcc.consumo,
+                lcc.dtFechaLectura AS fechaLectura,
+                l.tsFechaRegistroSistema AS fechaRegistro, -- <<< CAMBIO AÑADIDO AQUÍ
+                l.szPeriodoConsumo,
+                CASE
+                    WHEN ppm.consumoPromedio IS NOT NULL AND ppm.consumoPromedio > 1 AND lcc.consumo > 0 THEN
+                        (lcc.consumo > (ppm.consumoPromedio * 2.0) OR lcc.consumo < (ppm.consumoPromedio * 0.5))
+                    ELSE
+                        FALSE
+                END AS anomalia
             FROM tbllectura l
+            JOIN LecturasConConsumo lcc ON l.pkIdLectura = lcc.pkIdLectura
             JOIN tblmedidor m ON l.fkIdMedidor = m.pkIdMedidor
             JOIN tblsuscriptor s ON m.fkIdSuscriptor = s.pkIdSuscriptor
             JOIN tblpersona p ON s.fkIdPersona = p.pkIdPersona
             LEFT JOIN tblciclofacturacion c ON s.fkIdCiclo = c.pkIdCiclo
-            WHERE l.bAnulada = 0 -- ¡IMPORTANTE! Solo trae lecturas válidas
-            ORDER BY l.szPeriodoConsumo DESC, c.szNombreCiclo, p.szPrimerApellido;
+            LEFT JOIN PromediosPorMedidor ppm ON l.fkIdMedidor = ppm.fkIdMedidor
+            WHERE l.bAnulada = 0
+            ORDER BY l.dtFechaLectura DESC, l.pkIdLectura DESC;
         `;
         const [rows] = await pool.query(sql);
         res.json(rows);
@@ -372,8 +398,9 @@ app.get("/api/lecturas", async (req, res) => {
         });
     }
 });
-
-// 2. AÑADE este nuevo endpoint al final de la sección de Micromedición
+// =============================================
+//  FIN: ENDPOINT LISTAR LECTURAS
+// =============================================
 // =============================================
 //  ENDPOINT PARA ANULAR UNA LECTURA
 // =============================================

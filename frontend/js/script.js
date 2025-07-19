@@ -13,8 +13,15 @@ document.addEventListener("DOMContentLoaded", function () {
     flatpickr("#reporteHasta", { locale: "es", dateFormat: "d-F-Y" });
     flatpickr("#reporteGenDesde", { locale: "es", dateFormat: "d-F-Y" });
     flatpickr("#reporteGenHasta", { locale: "es", dateFormat: "d-F-Y" });
-    flatpickr("#fecha-lectura", {locale: "es",dateFormat: "Y-m-d",defaultDate: "today"});
-    flatpickr("#cambiar-fecha-instalacion", {locale: "es",dateFormat: "Y-m-d"});
+    flatpickr("#fecha-lectura", {
+        locale: "es",
+        dateFormat: "Y-m-d",
+        defaultDate: "today",
+    });
+    flatpickr("#cambiar-fecha-instalacion", {
+        locale: "es",
+        dateFormat: "Y-m-d",
+    });
     flatpickr("#edit-fecha-lectura", { locale: "es", dateFormat: "Y-m-d" });
 
     // =============================================
@@ -23,7 +30,9 @@ document.addEventListener("DOMContentLoaded", function () {
     const menuHamburguesa = document.querySelector(".menu-hamburguesa");
     const contenedorMenu = document.querySelector(".contenedor-menu");
     const allEncabezadoNav = document.querySelectorAll(".encabezado-nav");
-    const allElementoNavSubmenu = document.querySelectorAll(".submenu .elemento-nav");
+    const allElementoNavSubmenu = document.querySelectorAll(
+        ".submenu .elemento-nav"
+    );
     const todasLasVistas = document.querySelectorAll(".vista-contenido");
     let elementoSeleccionadoGlobal = null;
 
@@ -61,7 +70,18 @@ document.addEventListener("DOMContentLoaded", function () {
     const nextYearBtn = dropdown.querySelector(".next-year");
     const monthsGrid = dropdown.querySelector(".months-grid");
     const meses = [
-        "ene.", "feb.", "mar.", "abr.", "may.", "jun.", "jul.", "ago.", "sep.", "oct.", "nov.", "dic.",
+        "ene.",
+        "feb.",
+        "mar.",
+        "abr.",
+        "may.",
+        "jun.",
+        "jul.",
+        "ago.",
+        "sep.",
+        "oct.",
+        "nov.",
+        "dic.",
     ];
     let currentYear = new Date().getFullYear();
     let selectedMonth = new Date().getMonth();
@@ -127,13 +147,19 @@ document.addEventListener("DOMContentLoaded", function () {
     // --- INICIO: Variables para Modal de Edición de Lectura ---
     const modalEditarLectura = document.getElementById("modalEditarLectura");
     const formEditarLectura = document.getElementById("form-editar-lectura");
-    const tablaLecturas = document.querySelector("#vista-lecturas .unified-table tbody");
-    const inputEditLecturaActual = document.getElementById("edit-lectura-actual");
-    const inputEditLecturaAnterior = document.getElementById("edit-lectura-anterior");
+    const tablaLecturas = document.querySelector(
+        "#vista-lecturas .unified-table tbody"
+    );
+    const inputEditLecturaActual = document.getElementById(
+        "edit-lectura-actual"
+    );
+    const inputEditLecturaAnterior = document.getElementById(
+        "edit-lectura-anterior"
+    );
     const editLecturaWarning = document.getElementById("edit-lectura-warning");
     const inputEditConsumo = document.getElementById("edit-consumo-calculado");
     // --- FIN: Variables para Modal de Edición de Lectura ---
-    
+
     // =============================================
     // === LÓGICA DE NAVEGACIÓN PRINCIPAL (MENÚ)
     // =============================================
@@ -869,11 +895,11 @@ document.addEventListener("DOMContentLoaded", function () {
             }
         });
     }
-    
+
     // =============================================
     // === INICIO: LÓGICA DE EDICIÓN DE LECTURAS
     // =============================================
-    
+
     // --- Event listener para botones de Anular y Editar en la tabla de lecturas ---
     if (tablaLecturas) {
         tablaLecturas.addEventListener("click", async (e) => {
@@ -889,9 +915,15 @@ document.addEventListener("DOMContentLoaded", function () {
 
                 if (confirmado) {
                     try {
-                        const respuesta = await fetch(`http://localhost:3000/api/lecturas/${idLectura}/anular`, { method: "PUT" });
+                        const respuesta = await fetch(
+                            `http://localhost:3000/api/lecturas/${idLectura}/anular`,
+                            { method: "PUT" }
+                        );
                         const resultado = await respuesta.json();
-                        if (!respuesta.ok) throw new Error(resultado.message || "Error en el servidor.");
+                        if (!respuesta.ok)
+                            throw new Error(
+                                resultado.message || "Error en el servidor."
+                            );
                         alert(resultado.message);
                         cargarLecturas();
                     } catch (error) {
@@ -916,15 +948,25 @@ document.addEventListener("DOMContentLoaded", function () {
         inputEditLecturaActual.style.borderColor = "";
 
         try {
-            const respuesta = await fetch(`http://localhost:3000/api/lecturas/${id}`);
-            if (!respuesta.ok) throw new Error("No se pudo cargar la información de la lectura.");
+            const respuesta = await fetch(
+                `http://localhost:3000/api/lecturas/${id}`
+            );
+            if (!respuesta.ok)
+                throw new Error(
+                    "No se pudo cargar la información de la lectura."
+                );
             const data = await respuesta.json();
 
             document.getElementById("edit-lectura-id").value = data.pkIdLectura;
-            document.getElementById("edit-lectura-anterior-valor").value = data.lecturaAnterior;
+            document.getElementById("edit-lectura-anterior-valor").value =
+                data.lecturaAnterior;
             inputEditLecturaAnterior.value = data.lecturaAnterior;
             inputEditLecturaActual.value = data.dcValorLectura;
-            document.getElementById("edit-fecha-lectura").value = new Date(data.dtFechaLectura).toISOString().split("T")[0];
+            document.getElementById("edit-fecha-lectura").value = new Date(
+                data.dtFechaLectura
+            )
+                .toISOString()
+                .split("T")[0];
             inputEditConsumo.value = data.dcValorLectura - data.lecturaAnterior;
 
             modalEditarLectura.classList.add("show");
@@ -933,20 +975,23 @@ document.addEventListener("DOMContentLoaded", function () {
             alert(error.message);
         }
     }
-    
+
     // --- Lógica de cálculo en vivo para el modal de edición ---
     if (inputEditLecturaActual) {
         inputEditLecturaActual.addEventListener("input", () => {
-            const anterior = parseFloat(document.getElementById("edit-lectura-anterior-valor").value) || 0;
+            const anterior =
+                parseFloat(
+                    document.getElementById("edit-lectura-anterior-valor").value
+                ) || 0;
             const actual = parseFloat(inputEditLecturaActual.value) || 0;
 
             if (actual < anterior) {
-                editLecturaWarning.style.display = 'block';
-                inputEditLecturaActual.style.borderColor = '#dc3545';
+                editLecturaWarning.style.display = "block";
+                inputEditLecturaActual.style.borderColor = "#dc3545";
                 inputEditConsumo.value = 0;
             } else {
-                editLecturaWarning.style.display = 'none';
-                inputEditLecturaActual.style.borderColor = '';
+                editLecturaWarning.style.display = "none";
+                inputEditLecturaActual.style.borderColor = "";
                 inputEditConsumo.value = actual - anterior;
             }
         });
@@ -957,9 +1002,13 @@ document.addEventListener("DOMContentLoaded", function () {
         formEditarLectura.addEventListener("submit", async (e) => {
             e.preventDefault();
             const idLectura = document.getElementById("edit-lectura-id").value;
-            const anterior = parseFloat(document.getElementById("edit-lectura-anterior-valor").value);
-            const actual = parseFloat(document.getElementById("edit-lectura-actual").value);
-            
+            const anterior = parseFloat(
+                document.getElementById("edit-lectura-anterior-valor").value
+            );
+            const actual = parseFloat(
+                document.getElementById("edit-lectura-actual").value
+            );
+
             if (actual < anterior) {
                 alert("La lectura actual no puede ser menor que la anterior.");
                 return;
@@ -967,15 +1016,19 @@ document.addEventListener("DOMContentLoaded", function () {
 
             const datosParaActualizar = {
                 dcValorLectura: actual,
-                dtFechaLectura: document.getElementById("edit-fecha-lectura").value,
+                dtFechaLectura:
+                    document.getElementById("edit-fecha-lectura").value,
             };
 
             try {
-                const respuesta = await fetch(`http://localhost:3000/api/lecturas/${idLectura}`, {
-                    method: 'PUT',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(datosParaActualizar)
-                });
+                const respuesta = await fetch(
+                    `http://localhost:3000/api/lecturas/${idLectura}`,
+                    {
+                        method: "PUT",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify(datosParaActualizar),
+                    }
+                );
 
                 const resultado = await respuesta.json();
                 if (!respuesta.ok) throw new Error(resultado.message);
@@ -992,7 +1045,6 @@ document.addEventListener("DOMContentLoaded", function () {
     // =============================================
     // === FIN: LÓGICA DE EDICIÓN DE LECTURAS
     // =============================================
-
 
     // =============================================
     // === LÓGICA DE VISTAS ESPECÍFICAS
@@ -1356,7 +1408,7 @@ async function cargarSuscriptoresParaLectura() {
 }
 
 // =============================================
-// === INICIO: FUNCIÓN CARGAR LECTURAS (ACTUALIZADA)
+// === INICIO: FUNCIÓN CARGAR LECTURAS (CON SOPORTE PARA ANOMALÍAS)
 // =============================================
 async function cargarLecturas() {
     const tablaBody = document.querySelector(
@@ -1399,8 +1451,17 @@ async function cargarLecturas() {
                 l.fechaLectura
             ).toLocaleDateString("es-ES", opcionesFecha);
 
+            // --- INICIO: CAMBIOS AQUÍ ---
+            const fechaRegistroFormateada = new Date(
+                l.fechaRegistro // Usamos el nuevo campo del backend
+            ).toLocaleDateString("es-ES", opcionesFecha);
+            // --- FIN: CAMBIOS AQUÍ ---
+
+            const claseAnomalia = l.anomalia ? 'class="consumo-anomalo"' : "";
+            const iconoAnomalia = l.anomalia ? " ⚠️" : "";
+
             const filaHtml = `
-                <tr>
+                <tr ${claseAnomalia}>
                     <td data-title="SUSCRIPTOR">${nombreCompleto}</td>
                     <td data-title="NUID">${l.nuid || "N/A"}</td>
                     <td data-title="NÚMERO DE DOCUMENTO">${
@@ -1411,15 +1472,22 @@ async function cargarLecturas() {
                         l.numeroContador || "N/A"
                     }</td>
                     <td data-title="LECTURA">${l.lectura}m<sup>3</sup></td>
-                    <td data-title="CONSUMO">${l.consumo}m<sup>3</sup></td>
+                    <td data-title="CONSUMO">${
+                        l.consumo
+                    }m<sup>3</sup>${iconoAnomalia}</td>
                     <td data-title="FECHA DE LECTURA">${fechaLecturaFormateada}</td>
-                    <td data-title="FECHA DE REGISTRO">${fechaLecturaFormateada}</td>
+                    
+                    <td data-title="FECHA DE REGISTRO">${fechaRegistroFormateada}</td>
                     <td data-title="ACCIONES">
                         <div style="display: flex; gap: 5px; justify-content: center;">
-                            <button class="btn btn-warning btn-sm btn-editar-lectura" data-id="${l.pkIdLectura}">
+                            <button class="btn btn-warning btn-sm btn-editar-lectura" data-id="${
+                                l.pkIdLectura
+                            }">
                                 <i class="fa fa-pencil" aria-hidden="true"></i> Editar
                             </button>
-                            <button class="btn btn-sm btn-anular-lectura" data-id="${l.pkIdLectura}" style="background-color: #dc3545; color: white; border-color: #dc3545;">
+                            <button class="btn btn-sm btn-anular-lectura" data-id="${
+                                l.pkIdLectura
+                            }" style="background-color: #dc3545; color: white; border-color: #dc3545;">
                                 <i class="fa fa-ban" aria-hidden="true"></i> Anular
                             </button>
                         </div>
